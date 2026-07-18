@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DesignCV — Générateur Intelligent</title>
+    
+    <!-- ✅ GOOGLE ANALYTICS 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H4C0NEPSH1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-H4C0NEPSH1');
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- ✅ LIEN VERS style.css EXTERNE -->
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        :root {
+            --primary: #4F46E5; --bg: #F8FAFC; --surface: #FFFFFF; --border: #E2E8F0;
+            --text: #0F172A; --text-secondary: #475569; --text-muted: #94A3B8;
+            --cv-color: #4F46E5; --shadow: 0 4px 6px -1px rgba(0,0,0,0.1); --radius: 8px;
+            --nav-height: 64px; --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.4; min-height: 100vh; }
+
+        .navbar { height: var(--nav-height); background: rgba(255,255,255,0.95); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); }
+        .brand { font-size: 1.35rem; font-weight: 800; text-decoration: none; color: var(--text); letter-spacing: -0.02em; } .brand span { color: var(--primary); }
+        .nav-actions { display: flex; gap: 12px; align-items: center; }
+        .app-grid { display: grid; grid-template-columns: minmax(340px, 480px) 1fr; min-height: calc(100vh - var(--nav-height)); }
+        .form-panel { background: var(--surface); border-right: 1px solid var(--border); overflow-y: auto; padding: 2rem; position: sticky; top: var(--nav-height); max-height: calc(100vh - var(--nav-height)); }
+        .form-header { margin-bottom: 2rem; } .form-header h1 { font-size: 1.6rem; font-weight: 800; margin-bottom: 0.3rem; } .form-header p { color: var(--text-secondary); font-size: 0.9rem; }
+        .form-section { padding: 1.5rem 0; border-top: 1px solid var(--border); }
+        .section-title { font-size: 1rem; font-weight: 700; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 8px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .form-group { margin-bottom: 1.25rem; } .form-group label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+        .form-input, .form-textarea, .form-select { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: var(--radius); font-family: inherit; font-size: 0.9rem; color: var(--text); background: var(--surface); transition: var(--transition); outline: none; }
+        .form-input:focus, .form-textarea:focus, .form-select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15); } 
+        .form-textarea { resize: vertical; min-height: 80px; }
+        .form-input:disabled { background: #f1f5f9; cursor: not-allowed; opacity: 0.7; }
+        
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 16px; border: none; border-radius: var(--radius); font-family: inherit; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: var(--transition); } .btn:active { transform: scale(0.98); }
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3); } .btn-primary:hover { background: var(--primary-light); transform: translateY(-1px); }
+        .btn-ghost { background: transparent; color: var(--text-secondary); padding: 8px 12px; } .btn-ghost:hover { background: var(--bg); color: var(--text); }
+        .btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text); } .btn-outline:hover { background: var(--bg); border-color: var(--text-secondary); } .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+        .btn-icon { background: none; border: none; font-size: 18px; cursor: pointer; color: var(--text-secondary); padding: 4px; border-radius: 6px; transition: var(--transition); } .btn-icon:hover { background: #FEE2E2; color: #EF4444; }
+
+        .photo-upload { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+        .photo-preview { width: 100px; height: 100px; border-radius: 50%; background: var(--bg); border: 2px dashed var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; transition: var(--transition); }
+        .photo-preview:hover { border-color: var(--primary); background: #EEF2FF; }
+        .photo-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .photo-info h4 { font-size: 0.9rem; font-weight: 600; } .photo-info p { font-size: 0.8rem; color: var(--text-muted); }
+        
+        .entry-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1rem; position: relative; animation: slideIn 0.25s ease; }
+        .entry-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .entry-badge { font-size: 0.7rem; font-weight: 700; color: var(--primary); background: #EEF2FF; padding: 2px 8px; border-radius: 20px; }
+        .current-check { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px; }
+        .current-check input { accent-color: var(--primary); }
+        
+        .skill-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+        .skill-input-group { display: flex; gap: 8px; } .skill-input-group .form-input { flex: 1; }
+        .skills-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+        .skill-tag { display: inline-flex; align-items: center; gap: 6px; background: #EEF2FF; color: var(--primary); padding: 6px 12px; border-radius: 20px; font-size: 0.82rem; font-weight: 500; } .skill-remove { cursor: pointer; font-weight: 700; opacity: 0.7; transition: var(--transition); font-size: 14px; } .skill-remove:hover { opacity: 1; color: #EF4444; }
+
+        .preview-panel { background: #E2E8F0; display: flex; flex-direction: column; max-height: calc(100vh - var(--nav-height)); position: sticky; top: var(--nav-height); }
+        .preview-toolbar { background: var(--surface); padding: 12px 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+        .toolbar-group { display: flex; align-items: center; gap: 10px; } .toolbar-label { font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; }
+        .theme-switcher { display: flex; background: var(--bg); padding: 4px; border-radius: var(--radius); border: 1px solid var(--border); }
+        .theme-btn { padding: 6px 14px; border: none; background: transparent; font-family: inherit; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); cursor: pointer; border-radius: 6px; transition: var(--transition); } .theme-btn.active { background: var(--surface); color: var(--primary); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .color-picker { display: flex; gap: 6px; }
+        .color-dot { width: 26px; height: 26px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; transition: var(--transition); } .color-dot:hover { transform: scale(1.15); } .color-dot.active { border-color: var(--text); box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--text); }
+        .color-dot[data-color="#4F46E5"] { background: #4F46E5; } .color-dot[data-color="#059669"] { background: #059669; } .color-dot[data-color="#0F172A"] { background: #0F172A; } .color-dot[data-color="#DC2626"] { background: #DC2626; } .color-dot[data-color="#7C3AED"] { background: #7C3AED; }
+        .preview-area { flex: 1; padding: 24px; overflow-y: auto; display: flex; justify-content: center; align-items: flex-start; }
+        
+        /* ✅ STRUCTURE CV : Wrapper + Contenu flexible */
+        .cv-sheet {
+            width: 210mm;
+            min-height: auto;
+            background: white;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            border-radius: 2px;
+            margin: 0 auto;
+            overflow: visible;
+        }
+        
+        .cv-page {
+            width: 100%;
+            min-height: auto !important;
+            height: auto;
+            padding: 15px 20px;
+            box-sizing: border-box;
+            transform-origin: top center;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .cv-page.fading { opacity: 0; transform: scale(0.98); }
+
+        .cv-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); text-align: center; padding: 2rem; } .cv-placeholder-icon { font-size: 3.5rem; margin-bottom: 1rem; opacity: 0.3; }
+
+        /* ✅ PHOTO 140px (TAILLE NORMALE) */
+        .cv-photo { 
+            width: 140px; height: 140px; border-radius: 50%; object-fit: cover; 
+            border: 3px solid var(--cv-color); margin: 0 auto 10px; display: block; 
+            box-shadow: none !important;
+        }
+        .cv-desc ul { padding-left: 1.2em; margin: 2px 0; }
+        .cv-desc li { margin-bottom: 1px; font-size: 11px; color: var(--text-secondary); line-height: 1.3; }
+        .cv-desc p { margin: 2px 0; font-size: 11px; line-height: 1.4; color: var(--text-secondary); }
+        .cv-link { color: var(--cv-color); text-decoration: none; font-size: 10px; font-weight: 600; } .cv-link:hover { text-decoration: underline; }
+        .current-badge { display: inline-block; background: var(--cv-color); color: white; padding: 1px 4px; border-radius: 3px; font-size: 9px; font-weight: 600; margin-left: 4px; }
+
+        /* ✅ THÈME CLASSIQUE - ULTRA-COMPACT */
+        .theme-classic { padding: 15px 20px; }
+        .theme-classic .cv-header { text-align: center; padding-bottom: 8px; margin-bottom: 12px; } /* ✅ BORDER SUPPRIMÉ */
+        .theme-classic .cv-name { font-size: 24px; font-weight: 800; color: var(--cv-color, var(--text)); margin-bottom: 3px; }
+        .theme-classic .cv-contact { display: flex; justify-content: center; gap: 10px; margin-top: 4px; font-size: 10px; color: var(--text-secondary); flex-wrap: wrap; }
+        .theme-classic .cv-section { margin-bottom: 10px; }
+        .theme-classic .cv-section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--cv-color, var(--text)); border-bottom: 1px solid var(--border); padding-bottom: 3px; margin-bottom: 6px; }
+        .theme-classic .cv-text { font-size: 11px; line-height: 1.4; color: var(--text-secondary); }
+        .theme-classic .cv-entry { margin-bottom: 8px; }
+        .theme-classic .cv-entry-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1px; flex-wrap: wrap; }
+        .theme-classic .cv-entry-title { font-size: 12px; font-weight: 700; }
+        .theme-classic .cv-entry-sub { font-size: 11px; font-weight: 600; color: var(--cv-color, var(--primary)); }
+        .theme-classic .cv-entry-date { font-size: 10px; color: var(--text-muted); }
+        
+        .theme-classic .cv-skills { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+        .theme-classic .cv-skill { display: inline-flex; align-items: center; background: var(--primary-bg); color: var(--primary); padding: 3px 8px; border-radius: 20px; font-size: 10px; font-weight: 600; border: 1px solid var(--primary); margin: 1px; }
+
+        /* ✅ THÈME MODERNE - ULTRA-COMPACT */
+        .theme-modern { display: grid; grid-template-columns: 200px 1fr; }
+        .theme-modern .cv-sidebar { background: var(--cv-color, #4F46E5); color: white; padding: 15px 15px; display: flex; flex-direction: column; }
+        .theme-modern .cv-main { padding: 15px; }
+        .theme-modern .cv-photo { border-color: white; margin: 0 auto 12px; width: 140px; height: 140px; }
+        .theme-modern .cv-name { font-size: 18px; font-weight: 800; margin-bottom: 14px; text-align: center; }
+        .theme-modern .cv-section { margin-bottom: 12px; }
+        .theme-modern .cv-section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 5px; opacity: 0.7; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 3px; }
+        .theme-modern .cv-main .cv-section-title { font-size: 12px; font-weight: 700; color: var(--cv-color, #4F46E5); margin-bottom: 6px; }
+        .theme-modern .cv-main .cv-section-title::after { content: ''; flex: 1; height: 2px; background: var(--cv-color, #4F46E5); opacity: 0.2; }
+        .theme-modern .cv-contact-item { display: flex; align-items: center; gap: 4px; margin-bottom: 3px; font-size: 10px; opacity: 0.9; }
+        .theme-modern .cv-entry { border-left: 2px solid var(--cv-color); padding-left: 6px; margin-bottom: 8px; }
+
+        /* ✅ THÈME ÉLÉGANT - ULTRA-COMPACT */
+        .theme-elegant { padding: 20px 25px; font-family: 'Playfair Display', serif; }
+        .theme-elegant .cv-header { display: flex; gap: 15px; margin-bottom: 15px; padding-bottom: 12px; border-bottom: 1px solid var(--border); align-items: center; }
+        .theme-elegant .cv-photo { width: 140px; height: 140px; border-radius: 12px; margin: 0; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .theme-elegant .cv-name { font-size: 26px; font-weight: 700; color: var(--cv-color, var(--text)); line-height: 1.1; margin-bottom: 6px; }
+        .theme-elegant .cv-section { margin-bottom: 14px; }
+        .theme-elegant .cv-section-title { font-size: 13px; font-weight: 600; color: var(--cv-color, var(--text)); margin-bottom: 6px; font-style: italic; }
+        .theme-elegant .cv-entry-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px; flex-wrap: wrap; }
+        .theme-elegant .cv-entry-title { font-size: 13px; font-weight: 700; color: var(--text); }
+        .theme-elegant .cv-skills { display: flex; flex-wrap: wrap; gap: 4px; }
+        .theme-elegant .cv-skill { padding: 3px 10px; border-radius: 2px; font-size: 10px; color: var(--cv-color, var(--primary)); border: 1px solid var(--cv-color, var(--primary)); font-family: 'Inter', sans-serif; letter-spacing: 0.05em; }
+
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 200; display: none; align-items: center; justify-content: center; padding: 1rem; } .modal-overlay.active { display: flex; animation: fadeIn 0.2s ease; }
+        .modal { background: var(--surface); border-radius: var(--radius); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); width: 100%; max-width: 900px; max-height: 90vh; overflow-y: auto; animation: slideUp 0.3s ease; }
+        .modal-header { padding: 20px 24px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+        .modal-desc { padding: 16px 24px 0; color: var(--text-secondary); font-size: 0.9rem; } .modal-body { padding: 16px 24px 24px; }
+        .opt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 12px; }
+        .opt-card { border: 2px solid var(--border); border-radius: var(--radius); padding: 20px; cursor: pointer; text-align: center; transition: var(--transition); } .opt-card:hover { border-color: var(--primary-light); transform: translateY(-2px); box-shadow: var(--shadow); } .opt-card.selected { border-color: var(--primary); background: #EEF2FF; }
+        .opt-icon { font-size: 2rem; margin-bottom: 8px; } .opt-card h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; } .opt-card p { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; }
+        .modal-footer { padding: 16px 24px 24px; display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--border); }
+
+        .history-list { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
+        .history-item { background: var(--bg); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 16px; display: flex; justify-content: space-between; align-items: center; transition: var(--transition); }
+        .history-item:hover { border-color: var(--primary); box-shadow: var(--shadow); }
+        .history-info h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
+        .history-info p { font-size: 0.8rem; color: var(--text-muted); }
+        .history-actions { display: flex; gap: 8px; }
+        .history-empty { text-align: center; padding: 40px; color: var(--text-muted); }
+        .history-empty-icon { font-size: 3rem; margin-bottom: 12px; opacity: 0.4; }
+
+        .toast { position: fixed; bottom: 24px; right: 24px; background: var(--text); color: white; padding: 14px 24px; border-radius: var(--radius); font-size: 0.9rem; font-weight: 500; box-shadow: var(--shadow); z-index: 300; transform: translateY(100px); opacity: 0; transition: var(--transition); pointer-events: none; } .toast.show { transform: translateY(0); opacity: 1; } .toast.success { background: #059669; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } } @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } } @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 1100px) { .app-grid { grid-template-columns: 1fr; } .form-panel { border-right: none; border-bottom: 1px solid var(--border); position: relative; top: 0; max-height: none; } .preview-panel { position: relative; top: 0; max-height: none; min-height: 70vh; } .cv-sheet { transform: scale(0.85); margin: 1.5rem auto; } }
+        @media (max-width: 700px) { .navbar { padding: 0 1rem; } .form-panel { padding: 1.25rem; } .form-row, .skill-row { grid-template-columns: 1fr; } .opt-grid { grid-template-columns: 1fr; } .cv-sheet { transform: scale(0.6); margin: 1rem auto; } .preview-area { padding: 1rem; } }
+        
+        /* ✅ PDF : Évite les coupures dans les sections */
+        .cv-section { page-break-inside: avoid !important; break-inside: avoid !important; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="brand">Design<span>CV</span></a>
+        <div class="nav-actions">
+            <button class="btn btn-ghost" id="btn-history">📚 Historique</button>
+            <button class="btn btn-ghost" id="btn-optimize">✨ Optimiser</button>
+            <button class="btn btn-primary" id="btn-download">📄 Télécharger PDF</button>
+        </div>
+    </nav>
+
+    <main class="app-grid">
+        <aside class="form-panel">
+            <div class="form-header">
+                <h1>Vos informations</h1>
+                <p>Modifications en temps réel.</p>
+            </div>
+            <section class="form-section">
+                <h2 class="section-title">📸 Photo de profil</h2>
+                <div class="photo-upload">
+                    <div class="photo-preview" id="photoPreview" onclick="document.getElementById('photoInput').click()">
+                        <span style="font-size:24px;opacity:0.4">📷</span>
+                    </div>
+                    <div class="photo-info">
+                        <h4>Ajouter une photo</h4>
+                        <p>JPG/PNG • Max 2MB</p>
+                        <input type="file" id="photoInput" accept="image/*" style="display:none">
+                    </div>
+                </div>
+            </section>
+            <section class="form-section">
+                <h2 class="section-title"> Identité & Contact</h2>
+                <div class="form-row">
+                    <div class="form-group"><label>Nom</label><input type="text" id="lastName" class="form-input" placeholder="Martin"></div>
+                    <div class="form-group"><label>Prénom</label><input type="text" id="firstName" class="form-input" placeholder="Jean"></div>
+                </div>
+                <div class="form-group"><label>Titre du poste</label><input type="text" id="jobTitle" class="form-input" placeholder="Développeur Full Stack"></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Email</label><input type="email" id="email" class="form-input" placeholder="jean@email.com"></div>
+                    <div class="form-group"><label>Téléphone</label><input type="tel" id="phone" class="form-input" placeholder="+33 6 12 34 56 78"></div>
+                </div>
+                <div class="form-group"><label>Localisation</label><input type="text" id="location" class="form-input" placeholder="Paris, France"></div>
+            </section>
+            <section class="form-section">
+                <h2 class="section-title">💼 Profil Professionnel</h2>
+                <div class="form-group"><label>Résumé</label><textarea id="profile" class="form-textarea" rows="4" placeholder="Décrivez votre parcours..."></textarea></div>
+            </section>
+            <section class="form-section">
+                <h2 class="section-title">🏢 Expériences</h2>
+                <div id="experience-list"></div>
+                <button type="button" class="btn btn-outline btn-sm" id="btn-add-exp">+ Ajouter</button>
+            </section>
+            <section class="form-section">
+                <h2 class="section-title">🎓 Formation</h2>
+                <div id="education-list"></div>
+                <button type="button" class="btn btn-outline btn-sm" id="btn-add-edu">+ Ajouter</button>
+            </section>
+            <section class="form-section">
+                <h2 class="section-title"> Projets Réalisés</h2>
+                <div id="project-list"></div>
+                <button type="button" class="btn btn-outline btn-sm" id="btn-add-proj">+ Ajouter</button>
+            </section>
+            <section class="form-section">
+                <h2 class="section-title">⚡ Compétences</h2>
+                <div class="skill-row">
+                    <div><label style="margin-bottom:8px;display:block">Techniques</label>
+                        <div class="skill-input-group"><input type="text" id="tech-skill-input" class="form-input" placeholder="Ex: JavaScript..."><button type="button" class="btn btn-primary btn-sm" id="btn-add-tech">+</button></div>
+                        <div class="skills-container" id="tech-skills-container"></div>
+                    </div>
+                    <div><label style="margin-bottom:8px;display:block">Autres / Soft Skills</label>
+                        <div class="skill-input-group"><input type="text" id="other-skill-input" class="form-input" placeholder="Ex: Gestion d'équipe..."><button type="button" class="btn btn-primary btn-sm" id="btn-add-other">+</button></div>
+                        <div class="skills-container" id="other-skills-container"></div>
+                    </div>
+                </div>
+            </section>
+            <section class="form-section">
+                <h2 class="section-title">🌍 Langues</h2>
+                <div id="language-list"></div>
+                <button type="button" class="btn btn-outline btn-sm" id="btn-add-lang">+ Ajouter</button>
+            </section>
+        </aside>
+
+        <section class="preview-panel">
+            <div class="preview-toolbar">
+                <div class="toolbar-group">
+                    <span class="toolbar-label">Thème :</span>
+                    <div class="theme-switcher">
+                        <button class="theme-btn active" data-theme="classic">Classique</button>
+                        <button class="theme-btn" data-theme="modern">Moderne</button>
+                        <button class="theme-btn" data-theme="elegant">Élégant</button>
+                    </div>
+                </div>
+                <div class="toolbar-group">
+                    <span class="toolbar-label">Couleur :</span>
+                    <div class="color-picker">
+                        <button class="color-dot active" data-color="#4F46E5"></button>
+                        <button class="color-dot" data-color="#059669"></button>
+                        <button class="color-dot" data-color="#0F172A"></button>
+                        <button class="color-dot" data-color="#DC2626"></button>
+                        <button class="color-dot" data-color="#7C3AED"></button>
+                    </div>
+                </div>
+            </div>
+            <div class="preview-area">
+                <div class="cv-sheet">
+                    <div id="cv-render" class="cv-page">
+                        <div class="cv-placeholder"><div class="cv-placeholder-icon">📄</div><h3>Votre CV apparaîtra ici</h3></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODALES -->
+    <div class="modal-overlay" id="history-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>📚 Historique des CV</h3>
+                <button class="btn-icon" id="btn-close-history">✕</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-desc">Vos CV sauvegardés sont stockés localement.</p>
+                <div class="history-list" id="history-list"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" id="btn-clear-history">️ Tout effacer</button>
+                <button class="btn btn-primary" id="btn-close-history-footer">Fermer</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="opt-modal">
+        <div class="modal">
+            <div class="modal-header"><h3>✨ Optimisation du Design</h3><button class="btn-icon" id="btn-close-modal">✕</button></div>
+            <div class="modal-body">
+                <div class="opt-grid">
+                    <div class="opt-card selected" data-variant="balanced"><div class="opt-icon">⚖️</div><h4>Équilibré</h4></div>
+                    <div class="opt-card" data-variant="compact"><div class="opt-icon">📦</div><h4>Compact</h4></div>
+                    <div class="opt-card" data-variant="spacious"><div class="opt-icon">🪶</div><h4>Aéré</h4></div>
+                </div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-ghost" id="btn-cancel-opt">Annuler</button><button class="btn btn-primary" id="btn-apply-opt">Appliquer</button></div>
+        </div>
+    </div>
+    <div class="toast" id="toast"></div>
+
+    <!-- JAVASCRIPT -->
+    <script src="app.js"></script>
+</body>
+</html>
