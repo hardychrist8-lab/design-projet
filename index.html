@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DesignCV — Créateur de CV Professionnel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #0f172a; --primary: #4f46e5; --text: #f8fafc; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 1000px;
+        }
+        .scene { position: absolute; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; z-index: 1; }
+        .cube-wrapper { position: absolute; transform-style: preserve-3d; animation: float 6s ease-in-out infinite; }
+        .cube { transform-style: preserve-3d; animation: rotate 20s linear infinite; width: 200px; height: 200px; }
+        .face { position: absolute; width: 200px; height: 200px; background: rgba(79, 70, 229, 0.1); border: 2px solid var(--primary); box-shadow: 0 0 20px rgba(79, 70, 229, 0.3); }
+        .front  { transform: translateZ(100px); }
+        .back   { transform: rotateY(180deg) translateZ(100px); }
+        .right  { transform: rotateY(90deg) translateZ(100px); }
+        .left   { transform: rotateY(-90deg) translateZ(100px); }
+        .top    { transform: rotateX(90deg) translateZ(100px); }
+        .bottom { transform: rotateX(-90deg) translateZ(100px); }
+        @keyframes rotate { 0% { transform: rotateX(0) rotateY(0); } 100% { transform: rotateX(360deg) rotateY(360deg); } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        .content { position: relative; z-index: 10; text-align: center; opacity: 0; transform: translateY(30px); }
+        h1 { font-size: 4rem; font-weight: 800; letter-spacing: -2px; margin-bottom: 1rem; }
+        h1 span { color: var(--primary); }
+        p { font-size: 1.2rem; color: #94a3b8; margin-bottom: 2.5rem; }
+        .btn-start { padding: 1rem 3rem; font-size: 1.1rem; font-weight: 600; background: var(--primary); color: white; border: none; border-radius: 50px; cursor: pointer; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 10px 30px rgba(79, 70, 229, 0.4); display: inline-block; }
+        .btn-start:hover { transform: scale(1.05); box-shadow: 0 15px 40px rgba(79, 70, 229, 0.6); }
+    </style>
+</head>
+<body>
+    <div class="scene">
+        <div class="cube-wrapper">
+            <div class="cube">
+                <div class="face front"></div><div class="face back"></div><div class="face right"></div><div class="face left"></div><div class="face top"></div><div class="face bottom"></div>
+            </div>
+        </div>
+    </div>
+    <div class="content">
+        <h1>Design<span>CV</span></h1>
+        <p>Générez des CV professionnels en temps réel</p>
+        <a href="app.html" class="btn-start">Accéder au générateur →</a>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const tl = gsap.timeline();
+            tl.to(".content", { opacity: 1, y: 0, duration: 1, ease: "power3.out", delay: 0.5 })
+              .from(".cube-wrapper", { scale: 0, opacity: 0, duration: 1.5, ease: "back.out(1.7)" }, "-=1");
+        });
+    </script>
+</body>
+</html>
