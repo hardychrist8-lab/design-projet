@@ -153,61 +153,45 @@ document.addEventListener('DOMContentLoaded', () => {
     // ✉️ INPUTS
     Object.values(dom.inputs).forEach(i=>i.addEventListener('input',syncAndRender));
 
-    // 📄 EXPORT PDF (VERSION PUPPETEER - QUALITÉ PRO)
+    // 📄 EXPORT PDF (VERSION CLIENT-SIDE via html2pdf.js)
     dom.downloadBtn.addEventListener('click', async () => {
-        if (!state.personal.firstName && !state.personal.lastName) { 
-            showToast('Remplissez au moins un champ', 'info'); 
-            return; 
+        if (!state.personal.firstName && !state.personal.lastName) {
+            showToast('Remplissez au moins un champ', 'info');
+            return;
         }
-        
+
         showToast('Génération du PDF...', 'info');
-        
+        dom.downloadBtn.disabled = true;
+
         const element = document.getElementById('cv-render');
-        const cvSheet = element.parentElement; // .cv-sheet
-        
-        // Récupérer le HTML complet du CV
-        const htmlContent = `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="UTF-8">
-                <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
-                <style>
-                    ${document.querySelector('style').innerHTML}
-                    body { margin: 0; padding: 0; }
-                    .cv-sheet { width: 210mm; min-height: auto; background: white; }
-                </style>
-            </head>
-            <body>
-                <div class="cv-sheet">
-                    ${element.innerHTML}
-                </div>
-            </body>
-            </html>
-        `;
+
+        // Classe temporaire pour forcer un rendu propre pendant la capture
+        element.classList.add('pdf-exporting');
+
+        const opt = {
+            margin: 0,
+            filename: `DesignCV_${state.personal.lastName || 'CV'}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: {
+                scale: 2,
+                useCORS: true,
+                allowTaint: true,
+                logging: false,
+                backgroundColor: '#ffffff',
+                width: element.scrollWidth,
+                windowWidth: element.scrollWidth
+            },
+            jsPDF: {
+                unit: 'mm',
+                format: 'a4',
+                orientation: 'portrait',
+                hotfixes: ['px_scaling']
+            },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        };
 
         try {
-            // Appel à l'API Puppeteer
-            const response = await fetch('/api/generate-pdf', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    html: htmlContent,
-                    filename: `DesignCV_${state.personal.lastName || 'CV'}.pdf`
-                })
-            });
-
-            if (!response.ok) throw new Error('Erreur API');
-
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `DesignCV_${state.personal.lastName || 'CV'}.pdf`;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
+            await html2pdf().set(opt).from(element).save();
 
             if (typeof gtag !== 'undefined') {
                 gtag('event', 'download_pdf', { event_category: 'engagement', value: 1 });
@@ -215,7 +199,10 @@ document.addEventListener('DOMContentLoaded', () => {
             showToast('✅ PDF téléchargé !', 'success');
         } catch (err) {
             console.error('Erreur PDF:', err);
-            showToast('❌ Erreur PDF', 'error');
+            showToast('❌ Erreur lors de la génération', 'error');
+        } finally {
+            element.classList.remove('pdf-exporting');
+            dom.downloadBtn.disabled = false;
         }
     });
 
