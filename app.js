@@ -165,7 +165,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const element = document.getElementById('cv-render');
 
-        // Classe temporaire pour forcer un rendu propre pendant la capture
+        // 1) Attendre que TOUTES les polices web soient chargées avant la capture
+        try { await document.fonts.ready; } catch(e) {}
+
+        // 2) Petite pause pour que le navigateur finalise le rendu des glyphes
+        await new Promise(r => setTimeout(r, 300));
+
+        // 3) Classe temporaire pour forcer un rendu propre pendant la capture
         element.classList.add('pdf-exporting');
 
         const opt = {
@@ -178,8 +184,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 allowTaint: true,
                 logging: false,
                 backgroundColor: '#ffffff',
+                letterRendering: true,
                 width: element.scrollWidth,
-                windowWidth: element.scrollWidth
+                windowWidth: element.scrollWidth,
+                // onclone : s'assure que les polices sont prêtes dans le document cloné
+                onclone: async function(clonedDoc) {
+                    try { await clonedDoc.fonts.ready; } catch(e) {}
+                }
             },
             jsPDF: {
                 unit: 'mm',
