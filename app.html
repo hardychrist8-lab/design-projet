@@ -182,22 +182,6 @@
         
         /* ✅ PDF : Évite les coupures dans les sections */
         .cv-section { page-break-inside: avoid !important; break-inside: avoid !important; }
-
-        /* ✅ PDF EXPORT : Rendu propre pendant la capture html2canvas */
-        .cv-page.pdf-exporting {
-            width: 210mm !important;
-            min-height: 0 !important;
-            height: auto !important;
-            background: #ffffff !important;
-            box-shadow: none !important;
-            border-radius: 0 !important;
-            transform: none !important;
-            overflow: visible !important;
-        }
-        .pdf-exporting .cv-entry,
-        .pdf-exporting .cv-section { page-break-inside: avoid !important; break-inside: avoid !important; }
-        .pdf-exporting .theme-modern { display: grid !important; }
-        .pdf-exporting .theme-modern .cv-sidebar { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     </style>
 </head>
 <body>

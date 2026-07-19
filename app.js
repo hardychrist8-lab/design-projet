@@ -165,14 +165,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const element = document.getElementById('cv-render');
 
-        // 1) Attendre que TOUTES les polices web soient chargées avant la capture
+        // Attendre que les polices web soient chargées
         try { await document.fonts.ready; } catch(e) {}
-
-        // 2) Petite pause pour que le navigateur finalise le rendu des glyphes
-        await new Promise(r => setTimeout(r, 300));
-
-        // 3) Classe temporaire pour forcer un rendu propre pendant la capture
-        element.classList.add('pdf-exporting');
+        await new Promise(r => setTimeout(r, 200));
 
         const opt = {
             margin: 0,
@@ -185,10 +180,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 logging: false,
                 backgroundColor: '#ffffff',
                 letterRendering: true,
-                width: element.scrollWidth,
-                windowWidth: element.scrollWidth,
-                // onclone : s'assure que les polices sont prêtes dans le document cloné
+                // onclone : modifie UNIQUEMENT le clone caché, jamais le live preview
                 onclone: async function(clonedDoc) {
+                    const el = clonedDoc.getElementById('cv-render');
+                    if (el) {
+                        el.style.width = '210mm';
+                        el.style.minHeight = '0';
+                        el.style.height = 'auto';
+                        el.style.background = '#ffffff';
+                        el.style.boxShadow = 'none';
+                        el.style.borderRadius = '0';
+                        el.style.transform = 'none';
+                        el.style.overflow = 'visible';
+                    }
+                    // Forcer le chargement des polices dans le clone
                     try { await clonedDoc.fonts.ready; } catch(e) {}
                 }
             },
@@ -212,7 +217,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Erreur PDF:', err);
             showToast('❌ Erreur lors de la génération', 'error');
         } finally {
-            element.classList.remove('pdf-exporting');
             dom.downloadBtn.disabled = false;
         }
     });
