@@ -18,46 +18,79 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'HTML content is required' });
     }
 
-    // Launch Puppeteer with Chromium
-    const browser = await puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath,
-      headless: chromium.headless,
-    });
+    // DIAGNOSTIC: test each step
+    let diagnostic = {};
+    try {
+      diagnostic.execPath = await chromium.executablePath;
+      diagnostic.execPathType = typeof diagnostic.execPath;
+    } catch (e) {
+      return res.status(500).json({ step: 'chromium.executablePath', error: e.message, stack: e.stack });
+    }
 
-    const page = await browser.newPage();
-    
-    // Set content with wait for fonts
-    await page.setContent(html, {
-      waitUntil: 'networkidle0',
-    });
+    try {
+      diagnostic.args = chromium.args;
+      diagnostic.headless = chromium.headless;
+      diagnostic.viewport = chromium.defaultViewport;
+    } catch (e) {
+      return res.status(500).json({ step: 'chromium.config', error: e.message });
+    }
 
-    // Wait for fonts to load
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    let browser;
+    try {
+      browser = await puppeteer.launch({
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: diagnostic.execPath,
+        headless: chromium.headless,
+      });
+    } catch (e) {
+      return res.status(500).json({ step: 'puppeteer.launch', error: e.message, stack: e.stack, diagnostic });
+    }
 
-    // Generate PDF
-    const pdf = await page.pdf({
-      format: 'A4',
-      printBackground: true,
-      margin: {
-        top: '0mm',
-        right: '0mm',
-        bottom: '0mm',
-        left: '0mm',
-      },
-      preferCSSPageSize: true,
-    });
+    let page;
+    try {
+      page = await browser.newPage();
+    } catch (e) {
+      await browser.close();
+      return res.status(500).json({ step: 'browser.newPage', error: e.message, diagnostic });
+    }
+
+    try {
+      await page.setContent(html, {
+        waitUntil: 'networkidle0',
+      });
+    } catch (e) {
+      await browser.close();
+      return res.status(500).json({ step: 'page.setContent', error: e.message, diagnostic });
+    }
+
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    } catch (e) {
+      // ignore
+    }
+
+    let pdf;
+    try {
+      pdf = await page.pdf({
+        format: 'A4',
+        printBackground: true,
+        margin: { top: '0mm', right: '0mm', bottom: '0mm', left: '0mm' },
+        preferCSSPageSize: true,
+      });
+    } catch (e) {
+      await browser.close();
+      return res.status(500).json({ step: 'page.pdf', error: e.message, diagnostic });
+    }
 
     await browser.close();
 
-    // Send PDF
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="${filename || 'cv.pdf'}"`);
     res.send(pdf);
 
   } catch (error) {
     console.error('PDF generation error:', error);
-    res.status(500).json({ error: 'Failed to generate PDF' });
+    res.status(500).json({ error: 'Failed to generate PDF', detail: error.message, stack: error.stack });
   }
 };
