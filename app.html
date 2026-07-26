@@ -26,6 +26,9 @@
     <link rel="stylesheet" href="mobile.css">
     <link rel="stylesheet" href="a11y.css">
 
+    <!-- ✅ PHASE 2 — SKILLS INTELLIGENTS (Module 14 : suggestions contextuelles) -->
+    <link rel="stylesheet" href="skill-suggestions.css">
+
     <style>
         :root {
             --primary: #4F46E5; --bg: #F8FAFC; --surface: #FFFFFF; --border: #E2E8F0;
@@ -226,7 +229,7 @@
                     <div class="form-group"><label>Nom</label><input type="text" id="lastName" class="form-input" placeholder="Martin"></div>
                     <div class="form-group"><label>Prénom</label><input type="text" id="firstName" class="form-input" placeholder="Jean"></div>
                 </div>
-                <div class="form-group"><label>Titre du poste</label><input type="text" id="jobTitle" class="form-input" placeholder="Développeur Full Stack"></div>
+                <div class="form-group"><label>Titre du poste</label><input type="text" id="jobTitle" class="form-input" placeholder="Ex: Chef de projet, Comptable, Designer..." autocomplete="organization-title"></div>
                 <div class="form-row">
                     <div class="form-group"><label>Email</label><input type="email" id="email" class="form-input" placeholder="jean@email.com"></div>
                     <div class="form-group"><label>Téléphone</label><input type="tel" id="phone" class="form-input" placeholder="+33 6 12 34 56 78"></div>
@@ -256,7 +259,7 @@
                 <h2 class="section-title">⚡ Compétences</h2>
                 <div class="skill-row">
                     <div><label style="margin-bottom:8px;display:block">Techniques</label>
-                        <div class="skill-input-group"><input type="text" id="tech-skill-input" class="form-input" placeholder="Ex: JavaScript..."><button type="button" class="btn btn-primary btn-sm" id="btn-add-tech">+</button></div>
+                        <div class="skill-input-group"><input type="text" id="tech-skill-input" class="form-input" placeholder="Ex: Suite Office, Gestion de compte, Analyses..."><button type="button" class="btn btn-primary btn-sm" id="btn-add-tech">+</button></div>
                         <div class="skills-container" id="tech-skills-container"></div>
                     </div>
                     <div><label style="margin-bottom:8px;display:block">Autres / Soft Skills</label>
@@ -341,5 +344,8 @@
     <!-- ✅ PHASE 1 — UX & A11Y (overlay, ne modifie pas app.js) -->
     <script src="ux-layer.js"></script>
     <script src="a11y.js"></script>
+
+    <!-- ✅ PHASE 2 — SKILLS INTELLIGENTS (Module 14 : suggestions contextuelles au poste) -->
+    <script src="skill-suggestions.js"></script>
 </body>
 </html>

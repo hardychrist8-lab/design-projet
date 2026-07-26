@@ -1,0 +1,235 @@
+/* =====================================================================
+ * skill-suggestions.css  —  DesignCV Module 14 (Skills intelligents)
+ * ---------------------------------------------------------------------
+ * OVERLAY : ne modifie pas style.css. Réutilise les tokens Phase 1
+ * (--primary, --surface, --border, --text, --text-secondary, --text-muted,
+ *  --radius, --transition) définis dans :root de app.html / design-system.css.
+ * Harmonisation visuelle avec .skill-tag existant (couleur indigo, pill).
+ * ===================================================================== */
+
+/* --- Conteneur principal ------------------------------------------------ */
+.skill-suggestions {
+  margin-top: 10px;
+  padding: 10px 12px 8px;
+  background: color-mix(in srgb, var(--primary) 4%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--primary) 18%, var(--border));
+  border-radius: 10px;
+  transition: var(--transition);
+}
+
+.skill-suggestions.is-unavailable {
+  display: none;
+}
+
+/* --- En-tête : badge famille + bouton masquer -------------------------- */
+.skill-suggestions-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.skill-suggestions-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  padding: 3px 9px;
+  border-radius: 999px;
+  text-transform: none;
+  line-height: 1.4;
+}
+
+.skill-suggestions-toggle {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 28px;
+  transition: var(--transition);
+}
+
+.skill-suggestions-toggle:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.skill-suggestions-toggle:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.skill-suggestions-chevron {
+  font-size: 0.6rem;
+  transition: transform 0.2s ease;
+}
+
+.skill-suggestions-toggle[aria-expanded="false"] .skill-suggestions-chevron {
+  transform: rotate(-90deg);
+}
+
+/* --- Corps : chips + hint ---------------------------------------------- */
+.skill-suggestions-body {
+  overflow: hidden;
+  transition: max-height 0.25s ease, opacity 0.2s ease;
+  max-height: 400px;
+  opacity: 1;
+}
+
+.skill-suggestions-body.is-collapsed {
+  max-height: 0;
+  opacity: 0;
+  margin: 0;
+}
+
+.skill-suggestions-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+/* --- Chip (bouton) ------------------------------------------------------ */
+.skill-chip {
+  appearance: none;
+  -webkit-appearance: none;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--primary);
+  background: var(--surface);
+  border: 1px solid color-mix(in srgb, var(--primary) 28%, var(--border));
+  padding: 5px 11px;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 28px;
+  transition: background 0.18s ease, border-color 0.18s ease,
+              transform 0.18s ease, color 0.18s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.skill-chip:hover:not(.is-added) {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.skill-chip:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.skill-chip:active:not(.is-added) {
+  transform: translateY(0) scale(0.97);
+}
+
+/* Chip déjà ajoutée → grisée, non interactive */
+.skill-chip.is-added {
+  color: var(--text-muted);
+  background: color-mix(in srgb, var(--text-muted) 8%, var(--surface));
+  border-color: color-mix(in srgb, var(--text-muted) 20%, var(--border));
+  cursor: default;
+  opacity: 0.7;
+}
+
+.skill-chip-check {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #10B981; /* vert validation, cohérent avec ux-layer.js */
+}
+
+/* --- Hint ---------------------------------------------------------------- */
+.skill-suggestions-hint {
+  margin: 4px 0 0;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  font-style: italic;
+}
+
+/* =====================================================================
+ * Responsive — réutilise les breakpoints de mobile.css (1100 / 700 / 480)
+ * ===================================================================== */
+
+/* Sur écran étroit, les chips défilent horizontalement plutôt que de
+ * casser la grille .skill-row (1 colonne sur mobile). */
+@media (max-width: 700px) {
+  .skill-suggestions {
+    padding: 8px 10px;
+  }
+
+  .skill-suggestions-chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .skill-suggestions-chips::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .skill-suggestions-chips::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--primary) 40%, var(--border));
+    border-radius: 2px;
+  }
+
+  .skill-chip {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+}
+
+/* =====================================================================
+ * Accessibilité — prefers-reduced-motion : on neutralise les transitions
+ * (cohérent avec a11y.css qui désactive déjà les animations globales)
+ * ===================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .skill-suggestions,
+  .skill-suggestions-body,
+  .skill-suggestions-toggle,
+  .skill-suggestions-chevron,
+  .skill-chip {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* =====================================================================
+ * Thème sombre — si l'utilisateur active un dark mode système,
+ * on ajuste sans introduire de nouvelle variable (cohérence app).
+ * ===================================================================== */
+@media (prefers-color-scheme: dark) {
+  .skill-suggestions {
+    background: color-mix(in srgb, var(--primary) 10%, #1E293B);
+    border-color: color-mix(in srgb, var(--primary) 30%, #334155);
+  }
+
+  .skill-chip {
+    background: #1E293B;
+    color: color-mix(in srgb, var(--primary) 80%, #C7D2FE);
+  }
+
+  .skill-chip.is-added {
+    background: #0F172A;
+    color: #64748B;
+  }
+}
