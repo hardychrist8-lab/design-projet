@@ -1,0 +1,250 @@
+/* =========================================================
+   📱 DesignCV — Mobile & Tactile (Module 9)
+   Responsive + confort tactile + safe-area
+   100% overlay — ne casse pas les media queries existantes
+   ========================================================= */
+
+/* ---------- 1. SAFE AREA (iOS notch) ---------- */
+@supports (padding: env(safe-area-inset-bottom)) {
+    .navbar {
+        padding-left: max(2rem, env(safe-area-inset-left));
+        padding-right: max(2rem, env(safe-area-inset-right));
+        padding-top: env(safe-area-inset-top);
+        height: calc(var(--nav-height) + env(safe-area-inset-top));
+    }
+    .form-panel,
+    .preview-panel {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+}
+
+/* ---------- 2. TOUCH-ACTION (supprime le delay 300ms) ---------- */
+.btn,
+.btn-icon,
+.color-dot,
+.theme-btn,
+.opt-card,
+.photo-preview,
+.skill-tag,
+.skill-remove,
+.btn-remove,
+.history-item {
+    touch-action: manipulation;
+}
+
+/* ---------- 3. TAILLE MIN TACTILE (44px) ---------- */
+@media (max-width: 700px) {
+    .btn {
+        min-height: 44px;
+        padding: 12px 18px;
+    }
+    .btn-sm {
+        min-height: 40px;
+    }
+    .btn-icon {
+        min-width: 44px;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .color-dot {
+        width: 36px;
+        height: 36px;
+    }
+    .theme-btn {
+        min-height: 40px;
+        padding: 8px 16px;
+    }
+    .form-input,
+    .form-textarea,
+    .form-select {
+        /* 16px = évite le zoom auto iOS au focus */
+        font-size: 16px;
+        padding: 12px 14px;
+    }
+}
+
+/* ---------- 4. TABLETTE (≤1100px) — confirmer/affiner ---------- */
+@media (max-width: 1100px) {
+    .app-grid {
+        grid-template-columns: 1fr;
+    }
+    .form-panel {
+        position: relative;
+        top: 0;
+        max-height: none;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+    }
+    .preview-panel {
+        position: relative;
+        top: 0;
+        max-height: none;
+        min-height: 70vh;
+    }
+    .preview-area {
+        padding: 16px;
+    }
+}
+
+/* ---------- 5. MOBILE (≤700px) ---------- */
+@media (max-width: 700px) {
+    .navbar {
+        padding: 0 1rem;
+        height: var(--nav-height);
+    }
+    .brand {
+        font-size: 1.1rem;
+    }
+    .nav-actions {
+        gap: 6px;
+    }
+    .nav-actions .btn-ghost {
+        padding: 8px 10px;
+        font-size: 0.8rem;
+    }
+    .nav-actions .btn-primary {
+        padding: 10px 14px;
+        font-size: 0.85rem;
+    }
+
+    .form-panel {
+        padding: 1.25rem;
+    }
+    .form-header h1 {
+        font-size: 1.4rem;
+    }
+    .form-row,
+    .skill-row {
+        grid-template-columns: 1fr;
+    }
+    .form-input,
+    .form-textarea,
+    .form-select {
+        font-size: 16px;
+    }
+
+    /* Toolbar preview en colonne sur mobile */
+    .preview-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        padding: 12px 1rem;
+    }
+    .toolbar-group {
+        justify-content: space-between;
+    }
+
+    /* CV plus petit sur mobile */
+    .cv-sheet {
+        transform: scale(0.6);
+        margin: 1rem auto;
+    }
+    .preview-area {
+        padding: 0.5rem;
+        overflow-x: hidden;
+    }
+
+    /* Modale pleine largeur sur mobile */
+    .modal {
+        max-width: 100%;
+        max-height: 95vh;
+        margin: 0;
+    }
+    .opt-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    .opt-card {
+        padding: 14px;
+    }
+
+    /* Toast centré en bas sur mobile */
+    .toast {
+        bottom: 16px;
+        left: 16px;
+        right: 16px;
+        text-align: center;
+    }
+}
+
+/* ---------- 6. PETITS MOBILES (≤480px) ---------- */
+@media (max-width: 480px) {
+    .cv-sheet {
+        transform: scale(0.45);
+        margin: 0.5rem auto;
+    }
+    .preview-area {
+        min-height: 400px;
+    }
+    .navbar {
+        padding: 0 0.75rem;
+    }
+    .nav-actions .btn-ghost {
+        font-size: 0;
+    }
+    .nav-actions .btn-ghost::first-letter {
+        font-size: 1rem;
+    }
+    /* On masque le texte "Historique" et "Optimiser" sur très petit écran
+       pour ne garder que les icônes, sauf qu'il n'y a pas d'icônes...
+       → on garde juste le libellé court */
+    .nav-actions .btn-ghost {
+        font-size: 0.75rem;
+        padding: 8px;
+    }
+    .form-panel {
+        padding: 1rem;
+    }
+    .photo-upload {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    .photo-preview {
+        width: 80px;
+        height: 80px;
+    }
+    .modal-header {
+        padding: 16px 18px 12px;
+    }
+    .modal-body {
+        padding: 14px 18px 18px;
+    }
+    .modal-footer {
+        padding: 14px 18px 18px;
+        flex-wrap: wrap;
+    }
+}
+
+/* ---------- 7. SCROLL FLUIDE TACTILE ---------- */
+.form-panel,
+.preview-area,
+.modal {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+}
+
+/* ---------- 8. SUPPRESSION DES DÉBORDEMENTS HORIZENTAUX ---------- */
+body {
+    overflow-x: hidden;
+}
+.app-grid,
+.preview-toolbar,
+.navbar {
+    max-width: 100vw;
+}
+
+/* ---------- 9. MODE PAYSAGE MOBILE ---------- */
+@media (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
+    .navbar {
+        height: 56px;
+    }
+    .form-panel {
+        max-height: calc(100vh - 56px);
+    }
+    .preview-panel {
+        min-height: 60vh;
+    }
+}
