@@ -19,7 +19,13 @@
     
     <!-- ✅ LIEN VERS style.css EXTERNE -->
     <link rel="stylesheet" href="style.css">
-    
+
+    <!-- ✅ PHASE 1 — UI REFONTE (overlay, ne casse pas l'existant) -->
+    <link rel="stylesheet" href="design-system.css">
+    <link rel="stylesheet" href="micro-interactions.css">
+    <link rel="stylesheet" href="mobile.css">
+    <link rel="stylesheet" href="a11y.css">
+
     <style>
         :root {
             --primary: #4F46E5; --bg: #F8FAFC; --surface: #FFFFFF; --border: #E2E8F0;
@@ -332,5 +338,8 @@
 
     <!-- JAVASCRIPT -->
     <script src="app.js"></script>
+    <!-- ✅ PHASE 1 — UX & A11Y (overlay, ne modifie pas app.js) -->
+    <script src="ux-layer.js"></script>
+    <script src="a11y.js"></script>
 </body>
 </html>
