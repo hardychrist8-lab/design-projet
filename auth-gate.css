@@ -1,0 +1,508 @@
+/* =====================================================================
+ * auth-gate.css  —  DesignCV Phase 4 (Modules 2, 3, 4)
+ * ---------------------------------------------------------------------
+ * Auth modal + User menu + Cloud section dans historique.
+ * Harmonisé avec --primary (#4F46E5), Inter, tokens Phase 1.
+ * ===================================================================== */
+
+/* --- Auth Modal Overlay ---------------------------------------------- */
+.auth-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.auth-overlay.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* --- Auth Card -------------------------------------------------------- */
+.auth-card {
+ position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px 28px 28px;
+  width: 380px;
+  max-width: calc(100vw - 32px);
+  box-shadow: 0 25px 60px -12px rgba(15, 23, 42, 0.35);
+  transform: translateY(10px) scale(0.97);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: 'Inter', sans-serif;
+}
+
+.auth-overlay.is-open .auth-card {
+  transform: translateY(0) scale(1);
+}
+
+.auth-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.auth-close:hover {
+  background: color-mix(in srgb, var(--text-muted) 10%, transparent);
+  color: var(--text);
+}
+
+.auth-close:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* --- Header ----------------------------------------------------------- */
+.auth-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.auth-logo {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text);
+  font-family: 'Playfair Display', serif;
+  margin-bottom: 4px;
+}
+
+.auth-logo span {
+  color: var(--primary);
+}
+
+.auth-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* --- Form ------------------------------------------------------------ */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.auth-field label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.auth-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--surface);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.auth-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 15%, transparent);
+}
+
+.auth-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Messages d'erreur / info */
+.auth-error {
+  display: none;
+  font-size: 0.8rem;
+  color: #DC2626;
+  background: color-mix(in srgb, #DC2626 8%, var(--surface));
+  border: 1px solid color-mix(in srgb, #DC2626 20%, var(--border));
+  padding: 8px 10px;
+  border-radius: 8px;
+  margin: -4px 0;
+}
+
+.auth-info {
+  display: none;
+  font-size: 0.8rem;
+  color: #059669;
+  background: color-mix(in srgb, #059669 8%, var(--surface));
+  border: 1px solid color-mix(in srgb, #059669 20%, var(--border));
+  padding: 8px 10px;
+  border-radius: 8px;
+  margin: -4px 0;
+}
+
+.auth-submit {
+  margin-top: 4px;
+  min-height: 42px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.auth-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Toggle login / signup */
+.auth-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 16px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.auth-toggle-btn {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 0.82rem;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: var(--transition);
+}
+
+.auth-toggle-btn:hover {
+  text-decoration: underline;
+}
+
+.auth-toggle-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* --- User Menu (navbar) ---------------------------------------------- */
+.user-menu {
+  position: relative;
+}
+
+.user-menu-btn {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 999px;
+  padding: 4px 10px 4px 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: var(--transition);
+  min-height: 34px;
+}
+
+.user-menu-btn:hover {
+  border-color: var(--primary);
+}
+
+.user-menu-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.user-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.user-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text);
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Dropdown */
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 220px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px -8px rgba(15, 23, 42, 0.2);
+  padding: 6px;
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  z-index: 100;
+}
+
+.user-dropdown.is-open {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.user-dropdown-header {
+  padding: 8px 10px 6px;
+}
+
+.user-dropdown-email {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-family: inherit;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.12s ease, color 0.12s ease;
+  text-align: left;
+}
+
+.user-dropdown-item:hover {
+  background: color-mix(in srgb, var(--primary) 6%, transparent);
+  color: var(--text);
+}
+
+.user-dropdown-item:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+}
+
+.user-dropdown-danger {
+  color: #DC2626;
+}
+
+.user-dropdown-danger:hover {
+  background: color-mix(in srgb, #DC2626 8%, transparent);
+  color: #DC2626;
+}
+
+.user-dropdown-sep {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 4px 0;
+}
+
+/* --- Cloud Section (dans modale historique) ----------------------------- */
+.cloud-section {
+  margin-bottom: 16px;
+  padding: 12px;
+  background: color-mix(in srgb, var(--primary) 4%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--primary) 15%, var(--border));
+  border-radius: 10px;
+}
+
+.cloud-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.cloud-header h4 {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 0;
+}
+
+.cloud-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.cloud-empty {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 12px 0;
+  margin: 0;
+}
+
+.cloud-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.cloud-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cloud-item-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cloud-item-date {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.cloud-item-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.cloud-del-btn {
+  color: var(--text-muted) !important;
+  min-height: 28px;
+  padding: 4px 8px !important;
+  font-size: 0.75rem !important;
+}
+
+.cloud-del-btn:hover {
+  color: #DC2626 !important;
+  background: color-mix(in srgb, #DC2626 8%, transparent) !important;
+}
+
+/* --- Responsive -------------------------------------------------------- */
+@media (max-width: 700px) {
+  .auth-card {
+    padding: 24px 20px 20px;
+    width: calc(100vw - 32px);
+  }
+
+  .user-name {
+    display: none;
+  }
+
+  .user-dropdown {
+    right: 0;
+    left: auto;
+  }
+}
+
+/* --- Accessibilité ---------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .auth-overlay,
+  .auth-card,
+  .user-dropdown {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* --- Dark mode -------------------------------------------------------- */
+@media (prefers-color-scheme: dark) {
+  .auth-card {
+    background: #1E293B;
+    border-color: #334155;
+  }
+
+  .auth-logo {
+    color: #F1F5F9;
+  }
+
+  .auth-input {
+    background: #0F172A;
+    border-color: #334155;
+    color: #F1F5F9;
+  }
+
+  .auth-input:focus {
+    border-color: var(--primary);
+  }
+
+  .auth-error {
+    background: color-mix(in srgb, #DC2626 12%, #1E293B);
+  }
+
+  .auth-info {
+    background: color-mix(in srgb, #059669 12%, #1E293B);
+  }
+
+  .user-menu-btn {
+    background: #1E293B;
+    border-color: #334155;
+  }
+
+  .user-name {
+    color: #F1F5F9;
+  }
+
+  .user-dropdown {
+    background: #1E293B;
+    border-color: #334155;
+  }
+
+  .cloud-section {
+    background: color-mix(in srgb, var(--primary) 10%, #1E293B);
+    border-color: color-mix(in srgb, var(--primary) 25%, #334155);
+  }
+
+  .cloud-item {
+    background: #0F172A;
+    border-color: #334155;
+  }
+}
