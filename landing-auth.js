@@ -37,6 +37,7 @@
   const toggleText = $('#auth-toggle-text');
   const toggleLink = $('#auth-toggle-link');
   const googleBtn = $('#auth-google');
+  const forgotBtn = $('#auth-forgot');
 
   // -----------------------------------------------------------------
   // Init Supabase
@@ -115,6 +116,19 @@
     if (error) showError(friendlyError(error.message));
   }
 
+  async function handleForgotPassword() {
+    if (!supabase) return;
+    const email = emailInput.value.trim();
+    if (!email) { showError('Entrez votre email pour réinitialiser le mot de passe.'); return; }
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + '/index.html',
+    });
+    setLoading(false);
+    if (error) { showError(friendlyError(error.message)); return; }
+    showSuccess('Un email de réinitialisation a été envoyé à ' + email + '.');
+  }
+
   // -----------------------------------------------------------------
   // Password UX — indicateur visuel simple, PAS restrictif
   // -----------------------------------------------------------------
@@ -160,6 +174,7 @@
     toggleText.textContent = 'Déjà un compte ?';
     toggleLink.textContent = 'Se connecter';
     passwordInput.setAttribute('autocomplete', 'new-password');
+    forgotBtn.style.display = 'none';
     clearMessages();
   }
 
@@ -171,6 +186,7 @@
     toggleText.textContent = 'Pas encore de compte ?';
     toggleLink.textContent = 'Créer un compte';
     passwordInput.setAttribute('autocomplete', 'current-password');
+    forgotBtn.style.display = '';
     clearMessages();
   }
 
@@ -260,6 +276,9 @@
 
     // Google OAuth
     googleBtn.addEventListener('click', handleGoogle);
+
+    // Forgot password
+    forgotBtn.addEventListener('click', handleForgotPassword);
 
     // Password toggle visibility
     passwordToggle.addEventListener('click', () => {

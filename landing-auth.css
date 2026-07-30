@@ -384,6 +384,29 @@ html, body {
   align-items: center;
 }
 
+/* Submit row (button + forgot) */
+.auth-submit-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.auth-forgot {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 2px 0;
+  text-align: center;
+  transition: color 0.15s ease;
+}
+
+.auth-forgot:hover {
+  color: var(--text-secondary);
+}
+
 /* --- Divider -------------------------------------------------------- */
 .auth-divider {
   display: flex;
