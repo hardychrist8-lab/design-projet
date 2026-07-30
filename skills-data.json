@@ -1,20 +1,22 @@
 {
   "_meta": {
-    "version": "1.0.0",
-    "description": "Base de suggestions de compétences pour DesignCV — Module 14 (Skills intelligents). L'utilisateur reste libre de saisir ses propres compétences : ces suggestions sont uniquement des raccourcis contextuels au poste saisi.",
-    "license": "Propriétaire — DesignCV",
-    "note": "Les mots-clés sont en minuscules, sans accents, pour matcher la normalisation faite par skill-suggestions.js."
+    "version": "2.0.0",
+    "description": "DesignCV - Base de suggestions de compétences (v2 : compétences connues du grand public, mix multi-domaines)",
+    "license": "Propriétaire — DesignCV"
   },
 
   "default": {
     "label": "Compétences courantes",
     "technical": [
-      "Suite Microsoft Office", "Google Workspace", "Pack Adobe", "Notion",
-      "Trello", "Slack", "Excel avancé", "PowerPoint", "Canva", "Suite Adobe"
+      "Microsoft Word", "Microsoft Excel", "Microsoft PowerPoint", "Google Docs",
+      "Google Sheets", "Google Slides", "Canva", "Notion",
+      "Slack", "Microsoft Teams", "Zoom", "Outlook",
+      "Gmail", "Google Drive", "Dropbox"
     ],
     "soft": [
       "Esprit d'équipe", "Communication", "Organisation", "Rigueur",
-      "Autonomie", "Gestion du temps", "Adaptabilité", "Résolution de problèmes"
+      "Autonomie", "Gestion du temps", "Adaptabilité", "Sens du service",
+      "Résolution de problèmes", "Relation client"
     ]
   },
 
@@ -22,227 +24,242 @@
     {
       "id": "dev",
       "label": "Développement & IT",
-      "keywords": ["developpeur", "developpeuse", "dev", "ingenieur", "engineer", "fullstack", "full stack", "frontend", "front-end", "backend", "back-end", "logiciel", "software", "web", "mobile", "react", "node", "python", "java", "php", "technicien", "administrateur", "sysadmin", "reseau", "devops", "sre", "integrateur"],
+      "keywords": ["developpeur", "developpeuse", "dev", "ingenieur", "engineer", "fullstack", "full stack", "frontend", "front-end", "backend", "back-end", "logiciel", "software", "web", "mobile", "react", "node", "python", "java", "php", "technicien", "administrateur", "sysadmin", "reseau", "devops", "sre", "integrateur", "android", "ios"],
       "technical": [
-        "JavaScript", "TypeScript", "React", "Node.js", "Python", "SQL",
-        "Git", "Docker", "AWS", "REST API", "HTML5", "CSS3", "Vue.js", "Next.js"
+        "JavaScript", "Python", "Java", "HTML / CSS", "SQL", "Git",
+        "Linux", "TypeScript", "React", "Node.js", "C++", "PHP",
+        "Angular", "Docker", "Swift", "Kotlin"
       ],
       "soft": [
-        "Résolution de problèmes", "Pensée analytique", "Travail en équipe",
-        "Veille technologique", "Rigueur", "Autonomie", "Code review", "Pair programming"
+        "Résolution de problèmes", "Esprit d'équipe", "Autonomie",
+        "Rigueur", "Veille technologique", "Communication technique",
+        "Pensée analytique", "Curiosité"
       ]
     },
-
     {
       "id": "data",
-      "label": "Data & IA",
-      "keywords": ["data", "donnee", "analyste", "analyst", "scientist", "machine learning", "ia", "intelligence artificielle", "bi", "business intelligence", "statisticien", "ml", "deep learning"],
+      "label": "Data & Analyse",
+      "keywords": ["data", "donnee", "analyste", "analyst", "scientist", "machine learning", "ia", "intelligence artificielle", "bi", "business intelligence", "statisticien", "ml", "deep learning", "excel", "tableur"],
       "technical": [
-        "Python", "SQL", "Pandas", "NumPy", "Scikit-learn", "TensorFlow",
-        "Power BI", "Tableau", "Excel avancé", "R", "Spark", "ETL", "Dataiku"
+        "Microsoft Excel", "Google Sheets", "Python", "SQL", "Power BI",
+        "Tableau", "Google Analytics", "SPSS", "R", "Google Data Studio",
+        "Microsoft Access", "SAS"
       ],
       "soft": [
-        "Esprit d'analyse", "Rigueur", "Storytelling data", "Curiosité",
-        "Esprit critique", "Communication technique", "Sens du détail"
+        "Esprit d'analyse", "Rigueur", "Sens du détail", "Curiosité",
+        "Communication", "Esprit critique", "Storytelling", "Organisation"
       ]
     },
-
     {
       "id": "design",
       "label": "Design & Créatif",
-      "keywords": ["designer", "ux", "ui", "graphiste", "infographiste", "creatif", "creative", "motion", "illustrateur", "art director", "webdesigner", "maquettiste", "product designer"],
+      "keywords": ["designer", "ux", "ui", "graphiste", "infographiste", "creatif", "creative", "motion", "illustrateur", "art director", "webdesigner", "maquettiste", "product designer", "monteur", "video", "photo"],
       "technical": [
-        "Figma", "Adobe Photoshop", "Adobe Illustrator", "Adobe XD", "Sketch",
-        "InDesign", "After Effects", "Premiere Pro", "Blender", "Principes UX",
-        "Design system", "Prototypage"
+        "Adobe Photoshop", "Adobe Illustrator", "Canva", "Figma",
+        "Adobe InDesign", "Adobe Premiere Pro", "After Effects",
+        "Microsoft PowerPoint", "Blender", "Sketch", "Lightroom",
+        "Final Cut Pro"
       ],
       "soft": [
-        "Créativité", "Sens du détail", "Empathie utilisateur", "Esquisse",
-        "Acceptation de la critique", "Curiosité visuelle", "Rigueur graphique"
+        "Créativité", "Sens du détail", "Curiosité", "Organisation",
+        "Esprit d'équipe", "Communication", "Acceptation de la critique", "Patience"
       ]
     },
-
     {
       "id": "marketing",
       "label": "Marketing & Communication",
-      "keywords": ["marketing", "communication", "community manager", "social media", "content manager", "redacteur", "redactrice", "seo", "sea", "growth", "brand", "charge de communication", "responsable communication"],
+      "keywords": ["marketing", "communication", "community manager", "social media", "content manager", "redacteur", "redactrice", "seo", "sea", "growth", "brand", "charge de communication", "responsable communication", "publicite", "publicitaire"],
       "technical": [
-        "SEO", "Google Ads", "Facebook Ads", "Google Analytics", "Mailchimp",
-        "Hootsuite", "WordPress", "Canva", "Photoshop", "Adobe Premiere",
-        "Klaviyo", "Notion", "HubSpot"
+        "Google Analytics", "Google Ads", "Facebook Ads", "SEO",
+        "Instagram", "TikTok", "LinkedIn", "Mailchimp",
+        "WordPress", "Canva", "Microsoft PowerPoint", "Hootsuite",
+        "Google Workspace"
       ],
       "soft": [
-        "Créativité", "Rédaction", "Esprit d'analyse", "Sens du client",
-        "Réactivité", "Organisation", "Curiosité", "Veille concurrentielle"
+        "Créativité", "Rédaction", "Communication", "Organisation",
+        "Curiosité", "Réactivité", "Esprit d'analyse", "Relation client"
       ]
     },
-
     {
       "id": "finance",
       "label": "Finance & Comptabilité",
-      "keywords": ["comptable", "finance", "financier", "controleur de gestion", "audit", "auditeur", "tresorier", "analyste financier", "daf", "paie", "fiscaliste"],
+      "keywords": ["comptable", "finance", "financier", "controleur de gestion", "audit", "auditeur", "tresorier", "analyste financier", "daf", "paie", "fiscaliste", "expert-comptable", "gestionnaire"],
       "technical": [
-        "Comptabilité générale", "Sage", "CEGID", "Excel avancé", "Analyse financière",
-        "Bilan", "Compte de résultat", "Fiscalité", "Paie", "ERP", "SAP", "Power BI"
+        "Microsoft Excel", "Sage", "Comptabilité générale", "Analyse financière",
+        "Power BI", "Tableau", "SAP", "Google Sheets",
+        "Budget", "Fiscalité", "Paie", "Microsoft Access"
       ],
       "soft": [
-        "Rigueur", "Sens du détail", "Confidentialité", "Esprit d'analyse",
-        "Respect des délais", "Probité", "Organisation", "Communication chiffrée"
+        "Rigueur", "Sens du détail", "Organisation", "Confidentialité",
+        "Esprit d'analyse", "Communication", "Respect des délais", "Fiabilité"
       ]
     },
-
     {
       "id": "rh",
       "label": "Ressources Humaines",
-      "keywords": ["rh", "ressources humaines", "recruteur", "recruteuse", "drh", "charge de rh", "gestionnaire paie", "talent acquisition", "business partner"],
+      "keywords": ["rh", "ressources humaines", "recruteur", "recruteuse", "drh", "charge de rh", "gestionnaire paie", "talent", "business partner", "candidat", "recrutement"],
       "technical": [
-        "Recrutement", "SIRH", "Cegid RH", "Lucca", "PayFit", "Droit du travail",
-        "Gestion de la paie", "Onboarding", "GPEC", "Excel", "Notion"
+        "Recrutement", "Droit du travail", "Gestion de la paie",
+        "Microsoft Excel", "Microsoft Word", "Outlook",
+        "Google Workspace", "Entretien d'embauche", "Formation",
+        "Sage", "Évaluation"
       ],
       "soft": [
-        "Écoute active", "Empathie", "Confidentialité", "Médiation",
-        "Sens relationnel", "Rigueur", "Organisation", "Esprit de synthèse"
+        "Écoute active", "Empathie", "Confidentialité", "Communication",
+        "Sens relationnel", "Organisation", "Rigueur", "Patience"
       ]
     },
-
     {
       "id": "commercial",
       "label": "Commercial & Vente",
-      "keywords": ["commercial", "commerciale", "vendeur", "vendeuse", "sales", "account manager", "business developer", "charge d'affaires", "representant", "negociateur", "prospection"],
+      "keywords": ["commercial", "commerciale", "vendeur", "vendeuse", "sales", "account manager", "business developer", "charge d'affaires", "representant", "negociateur", "prospection", "televendeur", "conseiller"],
       "technical": [
-        "CRM Salesforce", "HubSpot", "Prospection B2B", "Négociation",
-        "Excel", "PowerPoint", "LinkedIn Sales Navigator", "Suite Office",
-        "Techniques de vente", "Forecasting"
+        "Négociation", "Prospection", "Microsoft Excel", "Microsoft PowerPoint",
+        "CRM Salesforce", "LinkedIn", "Google Workspace",
+        "Microsoft Outlook", "Techniques de vente", "Téléphone",
+        "Gestion de portefeuille client"
       ],
       "soft": [
-        "Sens du client", "Persuasion", "Résilience", "Écoute active",
-        "Tenacité", "Organisation", "Gestion du stress", "Esprit d'équipe"
+        "Sens du client", "Persuasion", "Communication", "Résilience",
+        "Écoute active", "Ténacité", "Organisation", "Esprit d'équipe"
       ]
     },
-
     {
       "id": "projet",
-      "label": "Gestion de projet & Management",
-      "keywords": ["chef de projet", "project manager", "product owner", "scrum master", "manager", "responsable", "coordinateur", "pmo", "delivery manager", "agile coach"],
+      "label": "Gestion de projet",
+      "keywords": ["chef de projet", "project manager", "product owner", "scrum master", "manager", "responsable", "coordinateur", "pmo", "delivery manager", "agile coach", "directeur"],
       "technical": [
-        "Méthodes agiles", "Scrum", "Kanban", "Jira", "Trello", "MS Project",
-        "Gantt", "Budgeting", "Notion", "Confluence", "Planification"
+        "Microsoft Excel", "Microsoft PowerPoint", "Microsoft Project",
+        "Notion", "Trello", "Google Workspace", "Outlook",
+        "Jira", "Slack", "Microsoft Teams", "Zoom",
+        "Planification", "Gestion de budget"
       ],
       "soft": [
         "Leadership", "Organisation", "Communication", "Gestion des priorités",
-        "Esprit de synthèse", "Médiation", "Prise de décision", "Pédagogie"
+        "Esprit de synthèse", "Prise de décision", "Pédagogie", "Adaptabilité"
       ]
     },
-
     {
       "id": "sante",
       "label": "Santé & Médical",
       "keywords": ["infirmier", "infirmiere", "medecin", "docteur", "kine", "kinesitherapeute", "pharmacien", "pharmacienne", "aide soignant", "sage femme", "dentiste", "psychologue", "orthophoniste"],
       "technical": [
-        "Soins infirmiers", "Pose de perfusion", "Pansements", "Pharmacologie",
-        "Anatomie", "RCP", "Logiciel médico", "Dossier patient", "Vigilance"
+        "Soins infirmiers", "Pharmacologie", "Anatomie",
+        "Rédaction de dossier patient", "Gestion d'urgence",
+        "Stérilisation", "Excel", "Microsoft Word",
+        "Logiciel médical", "Protocoles de soins"
       ],
       "soft": [
         "Empathie", "Résistance au stress", "Rigueur", "Écoute active",
-        "Travail en équipe", "Discrétion professionnelle", "Disponibilité", "Patience"
+        "Travail en équipe", "Patience", "Disponibilité", "Discrétion"
       ]
     },
-
     {
       "id": "education",
       "label": "Éducation & Formation",
-      "keywords": ["professeur", "professeure", "enseignant", "enseignante", "formateur", "formatrice", "maitre", "instituteur", "educateur", "charge de formation", "coach"],
+      "keywords": ["professeur", "professeure", "enseignant", "enseignante", "formateur", "formatrice", "maitre", "instituteur", "educateur", "charge de formation", "coach", "tuteur", "vacataire"],
       "technical": [
-        "Pédagogie", "Conception de cours", "E-learning", "Moodle", "Canva",
-        "PowerPoint", "Suite Office", "Évaluation", "Différenciation pédagogique"
+        "Microsoft PowerPoint", "Microsoft Word", "Google Classroom",
+        "Canva", "Moodle", "Microsoft Excel", "Google Workspace",
+        "Pédagogie", "Évaluation", "Padlet", "Kahoot",
+        "Préparation de cours"
       ],
       "soft": [
-        "Patience", "Pédagogie", "Écoute", "Autorité bienveillante", "Adaptabilité",
-        "Créativité", "Communication", "Gestion de groupe"
+        "Patience", "Pédagogie", "Écoute", "Communication",
+        "Adaptabilité", "Créativité", "Gestion de groupe", "Autorité bienveillante"
       ]
     },
-
     {
       "id": "juridique",
       "label": "Juridique",
-      "keywords": ["juriste", "avocat", "avocate", "notaire", "conseil juridique", "clerc", "huissier", "magistrat", "responsable conformite"],
+      "keywords": ["juriste", "avocat", "avocate", "notaire", "conseil juridique", "clerc", "huissier", "magistrat", "responsable conformite", "greffier", "procureur"],
       "technical": [
-        "Droit civil", "Droit commercial", "Droit du travail", "Rédaction contractuelle",
-        "Veille juridique", "Word avancé", "Legifrance", "Doctrine", "ERP juridique"
+        "Droit civil", "Droit du travail", "Droit commercial",
+        "Rédaction de contrats", "Microsoft Word", "Microsoft Excel",
+        "Outlook", "Recherche juridique", "Google",
+        "Plaidoirie", "Négociation", "Contentieux"
       ],
       "soft": [
         "Rigueur", "Confidentialité", "Esprit d'analyse", "Rédaction",
-        "Sens éthique", "Force de persuasion", "Organisation", "Patience"
+        "Persuasion", "Sens éthique", "Organisation", "Patience"
       ]
     },
-
     {
       "id": "logistique",
-      "label": "Logistique & Supply Chain",
-      "keywords": ["logistique", "supply chain", "magasinier", "cariste", "responsable d'entrepot", "chaine d'approvisionnement", "expedition", "reception", "transport", "dispatcheur"],
+      "label": "Logistique & Transport",
+      "keywords": ["logistique", "supply chain", "magasinier", "cariste", "responsable d'entrepot", "chaine d'approvisionnement", "expedition", "reception", "transport", "dispatcheur", "livreur", "chauffeur"],
       "technical": [
-        "SAP", "WMS", "ERP logistique", "Cariste CACES", "Excel", "Inventaire",
-        "Préparation de commandes", "Lean", "Optimisation tournées", "Tracer"
+        "Microsoft Excel", "SAP", "Gestion de stock", "Excel",
+        "Préparation de commandes", "Inventaire", "Conduite",
+        "CACES", "Planification logistique", "Google Maps",
+        "Gestion des fournisseurs"
       ],
       "soft": [
         "Organisation", "Rigueur", "Esprit d'équipe", "Réactivité",
-        "Gestion du stress", "Sens de la sécurité", "Force physique", "Ponctualité"
+        "Gestion du stress", "Sens de la sécurité", "Ponctualité", "Endurance"
       ]
     },
-
     {
       "id": "batiment",
-      "label": "Bâtiment & Génie civil",
-      "keywords": ["architecte", "ingenieur civil", "macon", "conducteur de travaux", "chef de chantier", "menuisier", "electricien", "plomber", "plombier", "technicien", "dessinateur", "projeteur"],
+      "label": "Bâtiment & Construction",
+      "keywords": ["architecte", "ingenieur civil", "macon", "conducteur de travaux", "chef de chantier", "menuisier", "electricien", "plomber", "plombier", "technicien", "dessinateur", "projeteur", "couvreur", "peintre"],
       "technical": [
-        "AutoCAD", "Revit", "SketchUp", "Lecture de plans", "Sécurité chantier",
-        "CACES", "Excel", "Métré", "Office Project", "Normes NF"
+        "Lecture de plans", "AutoCAD", "Sécurité chantier",
+        "Maçonnerie", "Électricité", "Plomberie",
+        "Menuiserie", "Peinture", "Isolation", "Carrelage",
+        "Normes de sécurité", "Gestion de chantier"
       ],
       "soft": [
-        "Sens de la sécurité", "Rigueur", "Travail en équipe", "Lecture de plans",
-        "Réactivité", "Gestion des sous-traitants", "Ponctualité", "Force physique"
+        "Sens de la sécurité", "Rigueur", "Travail en équipe",
+        "Résistance physique", "Réactivité", "Ponctualité",
+        "Adaptabilité", "Organisation"
       ]
     },
-
     {
       "id": "admin",
       "label": "Administration & Secrétariat",
-      "keywords": ["assistant", "assistante", "secretaire", "assistant de direction", "office manager", "gestionnaire administratif", "accueil", "standardiste"],
+      "keywords": ["assistant", "assistante", "secretaire", "assistant de direction", "office manager", "gestionnaire administratif", "accueil", "standardiste", "receptionniste", "concierge"],
       "technical": [
-        "Suite Microsoft Office", "Google Workspace", "Excel", "PowerPoint",
-        "Outlook", "Sage", "Notion", "Gestion d'agenda", "Prise de notes", "Canva"
+        "Microsoft Word", "Microsoft Excel", "Microsoft PowerPoint",
+        "Microsoft Outlook", "Google Workspace", "Canva",
+        "Gmail", "Slack", "Microsoft Teams", "Zoom",
+        "Notion", "Trello"
       ],
       "soft": [
-        "Organisation", "Discrétion", "Sens du service", "Réactivité",
-        "Écoute", "Gestion des priorités", "Présentation soignée", "Polyvalence"
+        "Organisation", "Discrétion", "Sens du service",
+        "Réactivité", "Écoute", "Gestion des priorités",
+        "Polyvalence", "Présentation soignée"
       ]
     },
-
     {
       "id": "journalisme",
       "label": "Médias & Journalisme",
-      "keywords": ["journaliste", "redacteur", "reporter", "animateur", "presentateur", "monteur video", "realisateur", "producteur", "charge de production"],
+      "keywords": ["journaliste", "redacteur", "reporter", "animateur", "presentateur", "monteur video", "realisateur", "producteur", "charge de production", "chroniqueur"],
       "technical": [
-        "Rédaction web", "WordPress", "Adobe Premiere", "Photoshop", "Indesign",
-        "SEO", "Réseaux sociaux", "Micro-trottoir", "Interview", "Montage audio"
+        "Rédaction", "Microsoft Word", "WordPress",
+        "Adobe Premiere Pro", "Photoshop", "Microsoft Excel",
+        "SEO", "Instagram", "TikTok", "Twitter / X",
+        "Canva", "Interview"
       ],
       "soft": [
-        "Curiosité", "Esprit de synthèse", "Rigueur", "Écoute", "Réactivité",
-        "Sens du contact", "Travail sous pression", "Créativité"
+        "Curiosité", "Esprit de synthèse", "Rigueur", "Écoute",
+        "Réactivité", "Sens du contact", "Travail sous pression", "Créativité"
       ]
     },
-
     {
       "id": "hotellerie",
       "label": "Hôtellerie & Restauration",
-      "keywords": ["cuisinier", "chef", "serveur", "serveuse", "barman", "receptionniste", "hotel", "restauration", "patissier", "boulanger", "majordome"],
+      "keywords": ["cuisinier", "chef", "serveur", "serveuse", "barman", "receptionniste", "hotel", "restauration", "patissier", "boulanger", "commis", "plongeur"],
       "technical": [
-        "Cuisine de saison", "HACCP", "Service en salle", "Préparation cocktails",
-        "Excel", "Caisse", "PMS Opera", "Mise en place", "Traçabilité"
+        "Cuisine", "Pâtisserie", "Service en salle",
+        "Caisse", "Hygiène alimentaire (HACCP)", "Mixologie",
+        "Microsoft Excel", "Réservation", "Gestion des stocks",
+        "Accueil client", "Anglais"
       ],
       "soft": [
         "Sens du service", "Résistance au stress", "Travail en équipe",
-        "Ponctualité", "Présentation soignée", "Réactivité", "Gestion du rythme", "Sourire"
+        "Ponctualité", "Présentation soignée", "Réactivité",
+        "Patience", "Sourire"
       ]
     }
   ]
