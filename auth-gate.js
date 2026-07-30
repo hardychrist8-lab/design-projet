@@ -67,7 +67,8 @@
   }
 
   // -----------------------------------------------------------------
-  // Session restore
+  // Session restore + protection de la page app.html
+  // Si Supabase est configuré et pas de session → redirect vers index.html
   // -----------------------------------------------------------------
   async function restoreSession() {
     if (!supabase) return;
@@ -77,6 +78,10 @@
         currentUser = session.user;
         onLoginSuccess();
         console.log('[DesignCV] Session restaurée pour', currentUser.email);
+      } else if (isConfigured) {
+        // Pas connecté + Supabase actif → redirect vers landing
+        console.log('[DesignCV] Non connecté, redirection vers la landing.');
+        window.location.replace('index.html');
       }
     } catch (e) { /* silent */ }
   }
@@ -115,7 +120,8 @@
     await supabase.auth.signOut();
     currentUser = null;
     onLogoutCleanup();
-    if (typeof window.showToast === 'function') window.showToast('Déconnecté.', 'success');
+    // Redirect vers landing page
+    window.location.replace('index.html');
   }
 
   // -----------------------------------------------------------------
@@ -265,38 +271,13 @@
   }
 
   // -----------------------------------------------------------------
-  // Gate différée hybride
-  // Intercepte PDF / Historique-save / Optimiser en phase de capture.
- // -----------------------------------------------------------------
+  // Les gates PDF/Optimize ne sont plus nécessaires car
+  // l'accès à app.html est désormais protégé par auth.
+  // (code conservé mais désactivé)
+  // -----------------------------------------------------------------
   function installGates() {
-    if (!isConfigured) return;
-
-    // PDF Download gate
-    const pdfBtn = $('#btn-download');
-    if (pdfBtn) {
-      pdfBtn.addEventListener('click', function (e) {
-        if (currentUser) return; // connecté → laisse passer
-        e.stopImmediatePropagation();
-        e.preventDefault();
-        showAuthModal(() => {
-          // Après connexion, clique programmatique sur le bouton
-          pdfBtn.click();
-        });
-      }, true);
-    }
-
-    // Optimize gate
-    const optBtn = $('#btn-optimize');
-    if (optBtn) {
-      optBtn.addEventListener('click', function (e) {
-        if (currentUser) return;
-        e.stopImmediatePropagation();
-        e.preventDefault();
-        showAuthModal(() => {
-          optBtn.click();
-        });
-      }, true);
-    }
+    // Gates supprimées — l'utilisateur est déjà authentifié
+    // pour accéder à app.html.
   }
 
   // -----------------------------------------------------------------
