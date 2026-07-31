@@ -11,7 +11,7 @@
   // -----------------------------------------------------------------
   // Supabase Config
   // -----------------------------------------------------------------
-  const SUPABASE_URL = 'https://nuogpqbwumbvbdmwcyvr.supabase.co';
+  const SUPABASE_URL = 'https://nuogpqbwumbvbdmwcyyr.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_VMaj7rVvYUYk3o18I0BvVw_an71dkJ5';
 
   let supabase = null;

@@ -30,7 +30,7 @@
   // ⚙️  CONFIGURATION — Remplacer par vos vraies valeurs Supabase
   // -----------------------------------------------------------------
   const CONFIG = {
-    supabaseUrl: 'https://nuogpqbwumbvbdmwcyvr.supabase.co',
+    supabaseUrl: 'https://nuogpqbwumbvbdmwcyyr.supabase.co',
     supabaseAnonKey: 'sb_publishable_VMaj7rVvYUYk3o18I0BvVw_an71dkJ5',
   };
 
