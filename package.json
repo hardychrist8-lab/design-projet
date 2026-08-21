@@ -4,7 +4,8 @@
   "description": "Générateur de CV intelligent",
   "dependencies": {
     "puppeteer-core": "^22.0.0",
-    "@sparticuz/chromium": "^122.0.0"
+    "@sparticuz/chromium": "^122.0.0",
+    "resend": "^4.0.0"
   },
   "engines": {
     "node": "24.x"
