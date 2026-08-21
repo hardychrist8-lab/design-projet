@@ -1,6 +1,7 @@
-function cvSavedTemplate(name, cvName, totalCvs) {
+function cvSavedTemplate(name, cvName, totalCvs, cvId) {
   const displayName = name || '';
-  const siteUrl = 'https://design-cv.com/app.html';
+  const baseUrl = 'https://design-cv.com/app.html';
+  const siteUrl = cvId ? baseUrl + '?cv=' + cvId : baseUrl;
   const firstName = displayName.split(' ')[0] || '';
 
   return {

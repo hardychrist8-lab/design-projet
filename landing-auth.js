@@ -95,6 +95,8 @@
       showError(friendlyError(error.message));
       return;
     }
+    // Envoyer l'email de bienvenue (fire & forget)
+    sendWelcomeEmail(email, name);
     // Si email confirmation activée, afficher un message
     if (data.user && !data.session) {
       showSuccess('Compte créé ! Vérifiez votre email puis connectez-vous.');
@@ -103,6 +105,18 @@
     }
     // Sinon redirection directe
     redirectToApp();
+  }
+
+  // -----------------------------------------------------------------
+  // Email notification helper (fire & forget)
+  // -----------------------------------------------------------------
+  function sendWelcomeEmail(email, name) {
+    if (!email) return;
+    fetch('/api/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'welcome', email, name: name || '' }),
+    }).catch(() => {});
   }
 
   async function handleGoogle() {
@@ -232,7 +246,10 @@
   }
 
   function redirectToApp() {
-    window.location.href = 'app.html';
+    // Préserver le paramètre ?cv=ID si présent (lien depuis email)
+    const cvParam = new URLSearchParams(window.location.search).get('cv');
+    const url = cvParam ? 'app.html?cv=' + encodeURIComponent(cvParam) : 'app.html';
+    window.location.href = url;
   }
 
   // -----------------------------------------------------------------

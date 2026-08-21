@@ -80,8 +80,11 @@
         console.log('[DesignCV] Session restaurée pour', currentUser.email);
       } else if (isConfigured) {
         // Pas connecté + Supabase actif → redirect vers landing
+        // Préserver le paramètre ?cv=ID si présent (lien depuis email)
         console.log('[DesignCV] Non connecté, redirection vers la landing.');
-        window.location.replace('index.html');
+        const cvParam = new URLSearchParams(window.location.search).get('cv');
+        const redirectUrl = cvParam ? 'index.html?cv=' + encodeURIComponent(cvParam) : 'index.html';
+        window.location.replace(redirectUrl);
       }
     } catch (e) { /* silent */ }
   }
@@ -135,14 +138,16 @@
       const cvState = buildCurrentState();
       if (!cvState) return false;
 
-      const { error } = await supabase.from('saved_cvs').insert({
+      const { data: inserted, error } = await supabase.from('saved_cvs').insert({
         user_id: currentUser.id,
         name: name || 'Mon CV',
         data: cvState,
-      });
+      }).select('id').single();
       if (error) { console.error('[DesignCV] Cloud save error:', error); return false; }
       if (typeof window.showToast === 'function') window.showToast('CV sauvegardé dans le cloud !', 'success');
       refreshCloudList();
+      // Envoyer l'email de notification (fire & forget)
+      sendCvSavedEmail(name || 'Mon CV', inserted?.id);
       return true;
     } catch (e) { console.error('[DesignCV] Cloud save error:', e); return false; }
   }
@@ -429,6 +434,8 @@
     renderUserMenu();
     injectCloudUI();
     refreshCloudList();
+    // Vérifier si un CV spécifique doit être chargé (depuis un lien email)
+    checkUrlCvParam();
   }
 
   function onLogoutCleanup() {
@@ -574,6 +581,48 @@
   }
 
   // -----------------------------------------------------------------
+  // Email notifications (fire & forget)
+  // -----------------------------------------------------------------
+  function sendCvSavedEmail(cvName, cvId) {
+    if (!currentUser?.email) return;
+    const displayName = currentUser.user_metadata?.display_name || currentUser.email.split('@')[0] || '';
+    // Compter le nombre total de CVs
+    (async () => {
+      let total = 1;
+      try {
+        const { count } = await supabase.from('saved_cvs').select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id);
+        if (count != null) total = count;
+      } catch (_) { /* keep default */ }
+      fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'cv-saved',
+          email: currentUser.email,
+          name: displayName,
+          cvName: cvName,
+          totalCvs: total,
+          cvId: cvId || '',
+        }),
+      }).catch(() => {});
+    })();
+  }
+
+  // -----------------------------------------------------------------
+  // Auto-load CV depuis URL (?cv=ID)
+  // -----------------------------------------------------------------
+  function checkUrlCvParam() {
+    const params = new URLSearchParams(window.location.search);
+    const cvId = params.get('cv');
+    if (!cvId || !supabase || !currentUser) return;
+    // Nettoyer l'URL sans recharger
+    window.history.replaceState({}, '', window.location.pathname);
+    // Charger le CV spécifique après un court délai pour que app.js soit prêt
+    setTimeout(() => loadFromCloud(cvId), 800);
+    if (typeof window.showToast === 'function') window.showToast('Chargement de votre CV...', 'info');
+  }
+
+  // -----------------------------------------------------------------
   // Utilitaires
   // -----------------------------------------------------------------
   function escapeHtml(str) {
@@ -587,6 +636,8 @@
     if (initSupabase()) {
       restoreSession();
       installGates();
+      // Si session restaurée, vérifier aussi le paramètre URL
+      // (onLoginSuccess sera appelé par restoreSession)
     }
   }
 
