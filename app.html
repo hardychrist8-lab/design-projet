@@ -200,7 +200,48 @@
         
         /* ✅ PDF : Évite les coupures dans les sections */
         .cv-section { page-break-inside: avoid !important; break-inside: avoid !important; }
+        /* ✅ FORCE MOBILE — Detecte l'écran réel, pas le viewport du navigateur */
+        @media screen and (max-width: 700px) {
+            .app-grid { grid-template-columns: 1fr !important; }
+            .form-panel { border-right: none !important; border-bottom: 1px solid var(--border); position: relative !important; top: 0 !important; max-height: none !important; padding: 1.25rem !important; }
+            .preview-panel { position: relative !important; top: 0 !important; max-height: none !important; min-height: 60vh !important; }
+            .form-panel, .preview-panel { overflow-y: auto !important; -webkit-overflow-scrolling: touch !important; }
+            .form-row, .skill-row { grid-template-columns: 1fr !important; }
+            .opt-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
+            .cv-sheet { transform: scale(0.55) !important; margin: 0.5rem auto !important; width: 210mm !important; }
+            .preview-area { padding: 0.5rem !important; overflow-x: hidden !important; }
+            .preview-toolbar { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; padding: 10px !important; }
+            .toolbar-group { justify-content: space-between !important; }
+            .navbar { padding: 0 0.75rem !important; }
+            .brand { font-size: 1.1rem !important; }
+            .nav-actions { gap: 4px !important; }
+            .nav-actions .btn-ghost { padding: 6px 8px !important; font-size: 0.75rem !important; }
+            .nav-actions .btn-primary { padding: 8px 12px !important; font-size: 0.8rem !important; }
+            .form-input, .form-textarea, .form-select { font-size: 16px !important; }
+            .modal { max-width: 100% !important; max-height: 95vh !important; margin: 0 !important; border-radius: 0 0 0 0 !important; }
+            .modal-header { padding: 14px 16px 10px !important; }
+            .modal-body { padding: 12px 16px 16px !important; }
+            .modal-footer { padding: 12px 16px 16px !important; flex-wrap: wrap !important; }
+            .photo-upload { flex-direction: column !important; align-items: flex-start !important; }
+            .photo-preview { width: 80px !important; height: 80px !important; }
+            .toast { bottom: 16px !important; left: 16px !important; right: 16px !important; text-align: center !important; }
+            body { overflow-x: hidden !important; }
+        }
+        @media screen and (max-width: 480px) {
+            .cv-sheet { transform: scale(0.42) !important; margin: 0 !important; }
+            .preview-area { min-height: 350px !important; }
+        }
     </style>
+    <script>
+        /* Force le viewport mobile si l'écran physique est petit
+           (corrige le cas où le navigateur est en mode desktop sur téléphone) */
+        (function() {
+            var realWidth = window.screen.width;
+            if (realWidth <= 700 && document.documentElement.clientWidth > 700) {
+                document.querySelector('meta[name="viewport"]').setAttribute('content', 'width=' + realWidth + ', initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+            }
+        })();
+    </script>
 </head>
 <body>
 
