@@ -482,11 +482,16 @@ html, body {
 
 /* --- Responsive ------------------------------------------------------ */
 @media (max-width: 860px) {
+  html, body {
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: auto;
+  }
+
   .landing-container {
     flex-direction: column;
     gap: 32px;
     padding: 24px 20px;
-    overflow-y: auto;
     height: auto;
     min-height: 100vh;
   }
