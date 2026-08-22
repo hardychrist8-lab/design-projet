@@ -1,0 +1,366 @@
+/* ============================================
+   MOBILE WIZARD — DesignCV
+   CV en haut, formulaire étapes en bas
+   Navbar 52px, boutons desktop cachés
+   ============================================ */
+
+/* ---- Navbar 52px mobile ---- */
+@media (max-width: 700px) {
+  .navbar {
+    height: 52px !important;
+    padding: 0 12px !important;
+  }
+  .brand {
+    font-size: 1.15rem !important;
+  }
+  /* Cacher boutons desktop sur mobile */
+  .nav-actions .btn-ghost,
+  .nav-actions #btn-history,
+  .nav-actions #btn-optimize {
+    display: none !important;
+  }
+  #btn-download {
+    font-size: 0.75rem !important;
+    padding: 6px 10px !important;
+  }
+  #btn-download::before {
+    content: '\2399'; /* ⓛ */
+    margin-right: 2px;
+  }
+}
+
+/* ---- Layout mobile : CV en haut, wizard en bas ---- */
+@media (max-width: 700px) {
+  .app-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    grid-template-columns: none !important;
+  }
+
+  /* CV preview : en haut, compact */
+  .preview-panel {
+    position: relative !important;
+    top: 0 !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    order: -1;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .preview-toolbar {
+    display: none !important; /* toolbar cachée, contrôles dans le wizard */
+  }
+
+  .preview-area {
+    padding: 8px !important;
+    min-height: 0 !important;
+    background: #f1f5f9;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .cv-sheet {
+    transform: scale(0.48) !important;
+    transform-origin: top center !important;
+    margin: 0 auto !important;
+    pointer-events: none;
+    height: 280px;
+    width: 210mm;
+    overflow: hidden;
+  }
+
+  /* Form panel : en bas, sans scroll global */
+  .form-panel {
+    position: relative !important;
+    top: 0 !important;
+    max-height: none !important;
+    border-right: none !important;
+    border-bottom: none !important;
+    padding: 0 !important;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Cacher le header du formulaire */
+  .form-header {
+    display: none !important;
+  }
+
+  /* Cacher toutes les sections par défaut (le JS gère l'affichage) */
+  .form-panel .form-section {
+    display: none !important;
+    padding: 1rem 1rem 0.5rem !important;
+    border-top: none !important;
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .form-panel .form-section.mobile-active {
+    display: block !important;
+  }
+
+  /* ---- Step Indicator ---- */
+  #mobile-step-bar {
+    display: flex !important;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 4px;
+    flex-shrink: 0;
+  }
+
+  .mobile-step-tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 2px 6px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    position: relative;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobile-step-tab::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 20%;
+    right: 20%;
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+    background: transparent;
+    transition: background 0.2s ease;
+  }
+
+  .mobile-step-tab.active::after {
+    background: var(--primary);
+  }
+
+  .mobile-step-tab .step-icon {
+    font-size: 16px;
+    margin-bottom: 2px;
+    opacity: 0.45;
+    transition: opacity 0.2s ease;
+  }
+
+  .mobile-step-tab.active .step-icon,
+  .mobile-step-tab.completed .step-icon {
+    opacity: 1;
+  }
+
+  .mobile-step-tab .step-label {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    transition: color 0.2s ease;
+  }
+
+  .mobile-step-tab.active .step-label {
+    color: var(--primary);
+  }
+
+  .mobile-step-tab.completed .step-label {
+    color: var(--text-secondary);
+  }
+
+  /* ---- Navigation buttons (Prev/Next) ---- */
+  #mobile-step-nav {
+    display: flex;
+    gap: 8px;
+    padding: 8px 1rem;
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  #mobile-step-nav .btn {
+    flex: 1;
+    padding: 12px !important;
+    font-size: 0.9rem !important;
+    min-height: 44px;
+    border-radius: 10px !important;
+  }
+
+  #mobile-step-nav .btn-prev {
+    background: var(--bg);
+    color: var(--text-secondary);
+    border: 1.5px solid var(--border) !important;
+  }
+
+  #mobile-step-nav .btn-next {
+    background: var(--primary);
+    color: white;
+  }
+
+  #mobile-step-nav .btn-next:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* ---- Section tweaks for mobile wizard ---- */
+  .form-panel .form-section .section-title {
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .form-panel .form-section .form-group {
+    margin-bottom: 0.75rem;
+  }
+
+  .form-panel .form-section .form-row,
+  .form-panel .form-section .skill-row {
+    grid-template-columns: 1fr !important;
+    gap: 0.5rem !important;
+  }
+
+  .form-panel .form-section .photo-upload {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .form-panel .form-section .form-textarea {
+    min-height: 100px;
+  }
+
+  /* ---- Design step : thème + couleur inline ---- */
+  #mobile-design-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 4px;
+  }
+
+  #mobile-design-controls .mobile-control-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  #mobile-design-controls .mobile-control-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    min-width: 55px;
+  }
+
+  #mobile-design-controls .mobile-theme-switcher {
+    display: flex;
+    background: var(--bg);
+    padding: 3px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    flex: 1;
+  }
+
+  #mobile-design-controls .mobile-theme-btn {
+    flex: 1;
+    padding: 7px 4px;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  #mobile-design-controls .mobile-theme-btn.active {
+    background: var(--surface);
+    color: var(--primary);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  }
+
+  #mobile-design-controls .mobile-color-picker {
+    display: flex;
+    gap: 8px;
+    flex: 1;
+    justify-content: center;
+  }
+
+  #mobile-design-controls .mobile-color-dot {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  #mobile-design-controls .mobile-color-dot:active {
+    transform: scale(0.9);
+  }
+
+  #mobile-design-controls .mobile-color-dot.active {
+    border-color: var(--text);
+    box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--text);
+  }
+
+  /* Entry cards compact */
+  .form-panel .form-section .entry-card {
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Buttons add compact */
+  .form-panel .form-section .btn-outline {
+    width: 100%;
+    padding: 10px !important;
+    min-height: 44px;
+  }
+
+  /* Hide modals backdrop on mobile wizard (use native scroll) */
+  /* Toast position for mobile */
+  .toast {
+    bottom: 80px !important;
+    left: 16px !important;
+    right: 16px !important;
+    text-align: center;
+    border-radius: 10px !important;
+  }
+}
+
+/* ---- Landscape mobile ---- */
+@media (max-width: 700px) and (orientation: landscape) {
+  .cv-sheet {
+    transform: scale(0.38) !important;
+    height: 220px;
+  }
+  #mobile-step-bar {
+    padding: 0 8px;
+  }
+  .mobile-step-tab {
+    padding: 4px 2px 3px;
+  }
+  .mobile-step-tab .step-icon {
+    font-size: 14px;
+  }
+  .mobile-step-tab .step-label {
+    font-size: 8px;
+  }
+}
+
+/* ---- Tiny screens (< 380px) ---- */
+@media (max-width: 379px) {
+  .cv-sheet {
+    transform: scale(0.38) !important;
+    height: 240px;
+  }
+  .mobile-step-tab .step-label {
+    font-size: 7.5px;
+  }
+}

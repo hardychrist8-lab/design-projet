@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>DesignCV — Générateur Intelligent</title>
     
     <!-- ✅ GOOGLE ANALYTICS 4 -->
@@ -20,23 +23,24 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
     
     <!-- ✅ LIEN VERS style.css EXTERNE -->
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=20250621">
 
     <!-- ✅ PHASE 1 — UI REFONTE (overlay, ne casse pas l'existant) -->
-    <link rel="stylesheet" href="design-system.css">
-    <link rel="stylesheet" href="micro-interactions.css">
-    <link rel="stylesheet" href="mobile.css">
-    <link rel="stylesheet" href="a11y.css">
+    <link rel="stylesheet" href="design-system.css?v=20250621">
+    <link rel="stylesheet" href="micro-interactions.css?v=20250621">
+    <link rel="stylesheet" href="responsive-v2.css">
+    <link rel="stylesheet" href="mobile-wizard.css">
+    <link rel="stylesheet" href="a11y.css?v=20250621">
 
     <!-- ✅ PHASE 2 — SKILLS INTELLIGENTS (Module 14 : suggestions contextuelles) -->
-    <link rel="stylesheet" href="skill-suggestions.css">
+    <link rel="stylesheet" href="skill-suggestions.css?v=20250621">
 
     <!-- ✅ PHASE 3 — WIZARD & AIDE (Modules 7 & 8 : assistant guidé + aide contextuelle) -->
-    <link rel="stylesheet" href="wizard.css">
-    <link rel="stylesheet" href="help.css">
+    <link rel="stylesheet" href="wizard.css?v=20250621">
+    <link rel="stylesheet" href="help.css?v=20250621">
 
     <!-- ✅ PHASE 4 — AUTH GATE (Modules 2, 3, 4 : Supabase auth + cloud save/load) -->
-    <link rel="stylesheet" href="auth-gate.css">
+    <link rel="stylesheet" href="auth-gate.css?v=20250621">
 
     <style>
         :root {
@@ -200,48 +204,7 @@
         
         /* ✅ PDF : Évite les coupures dans les sections */
         .cv-section { page-break-inside: avoid !important; break-inside: avoid !important; }
-        /* ✅ FORCE MOBILE — Detecte l'écran réel, pas le viewport du navigateur */
-        @media screen and (max-width: 700px) {
-            .app-grid { grid-template-columns: 1fr !important; }
-            .form-panel { border-right: none !important; border-bottom: 1px solid var(--border); position: relative !important; top: 0 !important; max-height: none !important; padding: 1.25rem !important; }
-            .preview-panel { position: relative !important; top: 0 !important; max-height: none !important; min-height: 60vh !important; }
-            .form-panel, .preview-panel { overflow-y: auto !important; -webkit-overflow-scrolling: touch !important; }
-            .form-row, .skill-row { grid-template-columns: 1fr !important; }
-            .opt-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
-            .cv-sheet { transform: scale(0.55) !important; margin: 0.5rem auto !important; width: 210mm !important; }
-            .preview-area { padding: 0.5rem !important; overflow-x: hidden !important; }
-            .preview-toolbar { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; padding: 10px !important; }
-            .toolbar-group { justify-content: space-between !important; }
-            .navbar { padding: 0 0.75rem !important; }
-            .brand { font-size: 1.1rem !important; }
-            .nav-actions { gap: 4px !important; }
-            .nav-actions .btn-ghost { padding: 6px 8px !important; font-size: 0.75rem !important; }
-            .nav-actions .btn-primary { padding: 8px 12px !important; font-size: 0.8rem !important; }
-            .form-input, .form-textarea, .form-select { font-size: 16px !important; }
-            .modal { max-width: 100% !important; max-height: 95vh !important; margin: 0 !important; border-radius: 0 0 0 0 !important; }
-            .modal-header { padding: 14px 16px 10px !important; }
-            .modal-body { padding: 12px 16px 16px !important; }
-            .modal-footer { padding: 12px 16px 16px !important; flex-wrap: wrap !important; }
-            .photo-upload { flex-direction: column !important; align-items: flex-start !important; }
-            .photo-preview { width: 80px !important; height: 80px !important; }
-            .toast { bottom: 16px !important; left: 16px !important; right: 16px !important; text-align: center !important; }
-            body { overflow-x: hidden !important; }
-        }
-        @media screen and (max-width: 480px) {
-            .cv-sheet { transform: scale(0.42) !important; margin: 0 !important; }
-            .preview-area { min-height: 350px !important; }
-        }
     </style>
-    <script>
-        /* Force le viewport mobile si l'écran physique est petit
-           (corrige le cas où le navigateur est en mode desktop sur téléphone) */
-        (function() {
-            var realWidth = window.screen.width;
-            if (realWidth <= 700 && document.documentElement.clientWidth > 700) {
-                document.querySelector('meta[name="viewport"]').setAttribute('content', 'width=' + realWidth + ', initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
-            }
-        })();
-    </script>
 </head>
 <body>
 
@@ -401,6 +364,9 @@
     <!-- ✅ PHASE 3 — WIZARD & AIDE (Modules 7 & 8 : assistant guidé + aide contextuelle) -->
     <script src="wizard.js"></script>
     <script src="help.js"></script>
+
+    <!-- ✅ MOBILE WIZARD — CV en haut, formulaire par étapes en bas -->
+    <script src="mobile-tabs.js"></script>
 
     <!-- ✅ PHASE 4 — AUTH GATE (Modules 2, 3, 4) -->
     <!-- ⚠️  CONFIG : remplacer YOUR_SUPABASE_URL et YOUR_SUPABASE_ANON_KEY dans auth-gate.js -->
