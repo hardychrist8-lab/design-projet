@@ -115,11 +115,17 @@
   // -----------------------------------------------------------------
   async function restoreSession() {
     try {
-      // Vérifier si le hash contient des tokens (retour OAuth Google)
-      handleOAuthCallback();
+      // Handle OAuth callback FIRST (synchronous token save)
+      var oauthHandled = handleOAuthCallback();
+      if (oauthHandled) {
+        // Tokens just saved synchronously, user info loading in background
+        // The background fetch will call onLoginSuccess() when done
+        console.log('[DesignCV] OAuth tokens saved, waiting for user info...');
+        return;
+      }
 
       if (isTokenValid()) {
-        const s = getSession();
+        var s = getSession();
         currentUser = s.user;
         onLoginSuccess();
         console.log('[DesignCV] Session restaurée pour', currentUser.email);
@@ -145,41 +151,52 @@
 
   // -----------------------------------------------------------------
   // Handle OAuth callback (Google login redirect)
+  // IMPORTANT: must save tokens SYNCHRONOUSLY so restoreSession()
+  // can see them before redirecting to index.html.
   // -----------------------------------------------------------------
   function handleOAuthCallback() {
-    const hash = window.location.hash;
-    if (!hash || hash.indexOf('access_token') === -1) return;
+    var hash = window.location.hash;
+    if (!hash || hash.indexOf('access_token') === -1) return false;
 
-    const params = new URLSearchParams(hash.substring(1));
-    const accessToken = params.get('access_token');
-    const refreshToken = params.get('refresh_token');
-    const expiresIn = parseInt(params.get('expires_in') || '3600', 10);
-    const type = params.get('token_type') || 'bearer';
+    var params = new URLSearchParams(hash.substring(1));
+    var accessToken = params.get('access_token');
+    var refreshToken = params.get('refresh_token');
+    var expiresIn = parseInt(params.get('expires_in') || '3600', 10);
+    var type = params.get('token_type') || 'bearer';
 
-    if (!accessToken) return;
+    if (!accessToken) return false;
 
-    // Récupérer les infos user
+    // Save tokens IMMEDIATELY (synchronous) so isTokenValid() works
+    var tempSession = {
+      access_token: accessToken,
+      refresh_token: refreshToken,
+      expires_in: expiresIn,
+      expires_at: Math.floor(Date.now() / 1000) + expiresIn,
+      token_type: type,
+      user: null
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(tempSession));
+
+    // Clean the URL hash immediately
+    window.history.replaceState({}, '', window.location.pathname);
+
+    // Fetch user info in background (non-blocking)
     fetch(AUTH_API + '/user', {
       headers: { 'Authorization': 'Bearer ' + accessToken, 'apikey': CONFIG.supabaseAnonKey }
     })
     .then(function(r) { return r.json(); })
     .then(function(user) {
-      saveSession({
-        access_token: accessToken,
-        refresh_token: refreshToken,
-        expires_in: expiresIn,
-        token_type: type,
-        user: user
-      });
+      tempSession.user = user;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(tempSession));
       currentUser = user;
-      // Nettoyer le hash
-      window.history.replaceState({}, '', window.location.pathname);
       onLoginSuccess();
-      if (typeof window.showToast === 'function') window.showToast('Connecté !', 'success');
+      if (typeof window.showToast === 'function') window.showToast('Connecte !', 'success');
     })
     .catch(function(e) {
-      console.error('[DesignCV] OAuth callback error:', e);
+      console.error('[DesignCV] OAuth user fetch error:', e);
     });
+
+    return true;
   }
 
   // -----------------------------------------------------------------
