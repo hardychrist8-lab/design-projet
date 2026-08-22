@@ -268,82 +268,6 @@
     });
   }
 
-  /* ---- Fullscreen CV Preview Overlay ---- */
-  var overlay = null;
-  var overlayBody = null;
-  var overlayClone = null;
-
-  function buildPreviewOverlay() {
-    if (document.getElementById('cv-preview-overlay')) return;
-
-    overlay = document.createElement('div');
-    overlay.id = 'cv-preview-overlay';
-    overlay.innerHTML =
-      '<div class="overlay-header">' +
-        '<span class="overlay-title">\u{1F4C4} Aper\u00e7u du CV</span>' +
-        '<div class="overlay-actions">' +
-          '<button class="overlay-btn overlay-btn-close" id="overlay-close">\u2715 Fermer</button>' +
-          '<button class="overlay-btn overlay-btn-download" id="overlay-download">\u{1F4E5} PDF</button>' +
-        '</div>' +
-      '</div>' +
-      '<div class="overlay-body" id="overlay-body"></div>';
-
-    document.body.appendChild(overlay);
-    overlayBody = document.getElementById('overlay-body');
-
-    // Close button
-    document.getElementById('overlay-close').addEventListener('click', closePreviewOverlay);
-
-    // Download button
-    document.getElementById('overlay-download').addEventListener('click', function () {
-      var dlBtn = document.getElementById('btn-download');
-      if (dlBtn) dlBtn.click();
-    });
-
-    // Tap backdrop to close
-    overlay.addEventListener('click', function (e) {
-      if (e.target === overlay) closePreviewOverlay();
-    });
-  }
-
-  function openPreviewOverlay() {
-    if (!overlay) buildPreviewOverlay();
-
-    // Clone the current CV sheet
-    var cvSheet = document.querySelector('.preview-area > .cv-sheet');
-    if (!cvSheet) return;
-
-    // Remove old clone
-    if (overlayClone && overlayClone.parentNode) {
-      overlayClone.parentNode.removeChild(overlayClone);
-    }
-
-    overlayClone = cvSheet.cloneNode(true);
-    overlayBody.innerHTML = '';
-    overlayBody.appendChild(overlayClone);
-
-    overlay.classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function closePreviewOverlay() {
-    if (!overlay) return;
-    overlay.classList.remove('open');
-    document.body.style.overflow = '';
-  }
-
-  function bindPreviewTap() {
-    var previewArea = document.querySelector('.preview-area');
-    if (!previewArea) return;
-
-    previewArea.addEventListener('click', function (e) {
-      // Only on mobile
-      if (!checkMobile()) return;
-      e.stopPropagation();
-      openPreviewOverlay();
-    });
-  }
-
   /* ---- Observe desktop theme/color changes ---- */
   function observeDesktopChanges() {
     var observer = new MutationObserver(function () {
@@ -361,9 +285,7 @@
     buildStepBar();
     buildDesignStep();
     buildStepNav();
-    buildPreviewOverlay();
     bindAllInputs();
-    bindPreviewTap();
     bindDownloadNav();
     observeDesktopChanges();
 

@@ -72,25 +72,6 @@
     justify-content: center !important;
     align-items: flex-start !important;
     display: flex !important;
-    cursor: pointer !important;
-    position: relative !important;
-  }
-
-  /* Tap hint on preview */
-  .preview-area::after {
-    content: '\D83D\DD0D  Appuyez pour agrandir';
-    position: absolute;
-    bottom: 8px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 11px;
-    color: #64748b;
-    background: rgba(255,255,255,0.85);
-    padding: 3px 10px;
-    border-radius: 12px;
-    pointer-events: none;
-    white-space: nowrap;
-    font-weight: 500;
   }
 
   .cv-sheet {
@@ -370,98 +351,6 @@
     right: 16px !important;
     text-align: center;
     border-radius: 10px !important;
-  }
-
-  /* ---- Fullscreen CV Preview Overlay ---- */
-  #cv-preview-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 200;
-    background: rgba(15, 23, 42, 0.6);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    opacity: 0;
-    transition: opacity 0.25s ease;
-  }
-
-  #cv-preview-overlay.open {
-    display: flex;
-    flex-direction: column;
-    opacity: 1;
-  }
-
-  #cv-preview-overlay .overlay-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 16px;
-    padding-top: max(12px, env(safe-area-inset-top));
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    flex-shrink: 0;
-  }
-
-  #cv-preview-overlay .overlay-title {
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: var(--text);
-  }
-
-  #cv-preview-overlay .overlay-actions {
-    display: flex;
-    gap: 8px;
-  }
-
-  #cv-preview-overlay .overlay-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 14px;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: inherit;
-    -webkit-tap-highlight-color: transparent;
-    min-height: 44px;
-  }
-
-  #cv-preview-overlay .overlay-btn-close {
-    background: var(--bg);
-    color: var(--text-secondary);
-    border: 1.5px solid var(--border);
-  }
-
-  #cv-preview-overlay .overlay-btn-download {
-    background: var(--primary);
-    color: white;
-  }
-
-  #cv-preview-overlay .overlay-body {
-    flex: 1;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    background: #e2e8f0;
-    display: flex;
-    justify-content: center;
-    padding: 16px 8px;
-    padding-bottom: max(16px, env(safe-area-inset-bottom));
-  }
-
-  #cv-preview-overlay .overlay-body .cv-sheet {
-    transform: none !important;
-    margin: 0 auto !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    background: white !important;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.12) !important;
-    border-radius: 4px !important;
-    pointer-events: auto;
   }
 }
 
