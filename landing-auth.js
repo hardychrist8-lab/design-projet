@@ -256,7 +256,12 @@
   // GSAP entrance animations
   // -----------------------------------------------------------------
   function playEntrance() {
-    if (typeof gsap === 'undefined') return;
+    // Si GSAP n'est pas disponible, activer les animations CSS de fallback
+    if (typeof gsap === 'undefined') {
+      document.body.classList.add('gsap-fallback');
+      console.warn('[DesignCV] GSAP non disponible, animations CSS de fallback activées.');
+      return;
+    }
 
     const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 

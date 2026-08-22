@@ -180,8 +180,32 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <!-- GSAP with fallback: if CDN blocked, page still animates via CSS -->
+    <script>
+      window.__gsapFailed = false;
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"
+            onerror="window.__gsapFailed=true"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"
+            onerror="window.__gsapFailed=true"></script>
     <script src="landing-auth.js"></script>
+
+    <!-- CSS fallback animations if GSAP failed -->
+    <style>
+      @keyframes fallback-fade-up {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes fallback-fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      .gsap-fallback .brand-badge { animation: fallback-fade-up 0.6s ease both 0.1s; }
+      .gsap-fallback .brand-title { animation: fallback-fade-up 0.7s ease both 0.3s; }
+      .gsap-fallback .brand-tagline { animation: fallback-fade-up 0.6s ease both 0.5s; }
+      .gsap-fallback .auth-card { animation: fallback-fade-up 0.8s ease both 0.4s; }
+      .gsap-fallback .landing-bg { animation: fallback-fade-in 1s ease both; }
+    </style>
 
     <footer style="text-align:center;padding:1.5rem 1rem 1.25rem;">
         <a href="/privacy.html" style="color:#52525b;font-size:0.75rem;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#a1a1aa'" onmouseout="this.style.color='#52525b'">Politique de confidentialité</a>
