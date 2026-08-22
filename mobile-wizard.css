@@ -1,6 +1,6 @@
 /* ============================================
    MOBILE WIZARD — DesignCV
-   CV en haut, formulaire étapes en bas
+   CV en haut (rétractable), formulaire étapes en bas
    Navbar 52px, boutons desktop cachés
    ============================================ */
 
@@ -23,13 +23,9 @@
     font-size: 0.75rem !important;
     padding: 6px 10px !important;
   }
-  #btn-download::before {
-    content: '\2399'; /* ⓛ */
-    margin-right: 2px;
-  }
 }
 
-/* ---- Layout mobile : CV en haut, wizard en bas ---- */
+/* ---- Layout mobile : CV en haut (rétractable), wizard en bas ---- */
 @media (max-width: 700px) {
   .app-grid {
     display: flex !important;
@@ -37,39 +33,126 @@
     grid-template-columns: none !important;
   }
 
-  /* CV preview : en haut, compact */
+  /* CV preview panel */
   .preview-panel {
     position: relative !important;
     top: 0 !important;
     max-height: none !important;
     min-height: 0 !important;
     order: -1;
-    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
   }
 
   .preview-toolbar {
-    display: none !important; /* toolbar cachée, contrôles dans le wizard */
+    display: none !important;
   }
 
   .preview-area {
-    padding: 8px !important;
+    padding: 0 !important;
     min-height: 0 !important;
     background: #f1f5f9;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
   }
 
+  /* ---- CV rétracté par défaut ---- */
   .cv-sheet {
     transform: scale(0.48) !important;
     transform-origin: top center !important;
     margin: 0 auto !important;
     pointer-events: none;
-    height: 280px;
     width: 210mm;
+    overflow: hidden;
+    height: 280px;
+    transition: height 0.3s ease, opacity 0.2s ease;
+  }
+
+  /* État replié : preview cachée */
+  .preview-panel.cv-collapsed .preview-area {
+    height: 0;
+    padding: 0 !important;
+  }
+
+  .preview-panel.cv-collapsed .cv-sheet {
+    height: 0;
+    opacity: 0;
+  }
+
+  /* ---- Toggle button pour preview ---- */
+  #mobile-cv-toggle {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 8px 12px;
+    background: var(--surface);
+    border: none;
+    border-bottom: 1px solid var(--border);
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s ease;
+    min-height: 36px;
+  }
+
+  #mobile-cv-toggle:active {
+    background: var(--bg);
+  }
+
+  #mobile-cv-toggle .toggle-arrow {
+    display: inline-block;
+    font-size: 10px;
+    transition: transform 0.25s ease;
+  }
+
+  #mobile-cv-toggle .toggle-arrow.open {
+    transform: rotate(180deg);
+  }
+
+  /* ---- Miniature du CV replié ---- */
+  #mobile-cv-mini {
+    display: none;
+    width: 100%;
+    padding: 6px 12px 8px;
+    background: var(--bg);
     overflow: hidden;
   }
 
-  /* Form panel : en bas, sans scroll global */
+  .preview-panel.cv-collapsed #mobile-cv-mini {
+    display: block;
+  }
+
+  #mobile-cv-mini .mini-cv-name {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  #mobile-cv-mini .mini-cv-job {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 1px;
+  }
+
+  /* ---- Séparateur ---- */
+  #mobile-cv-separator {
+    height: 1px;
+    background: var(--border);
+    flex-shrink: 0;
+  }
+
+  /* Form panel : en bas, prend tout l'espace */
   .form-panel {
     position: relative !important;
     top: 0 !important;
@@ -81,6 +164,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    min-height: 0;
   }
 
   /* Cacher le header du formulaire */
@@ -89,16 +173,17 @@
   }
 
   /* Cacher toutes les sections par défaut (le JS gère l'affichage) */
-  .form-panel .form-section {
+  .form-panel > .form-section {
     display: none !important;
     padding: 1rem 1rem 0.5rem !important;
     border-top: none !important;
     flex: 1;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    min-height: 0;
   }
 
-  .form-panel .form-section.mobile-active {
+  .form-panel > .form-section.mobile-active {
     display: block !important;
   }
 
@@ -205,7 +290,7 @@
     cursor: not-allowed;
   }
 
-  /* ---- Section tweaks for mobile wizard ---- */
+  /* ---- Section tweaks ---- */
   .form-panel .form-section .section-title {
     font-size: 0.9rem;
     margin-bottom: 0.75rem;
@@ -231,7 +316,7 @@
     min-height: 100px;
   }
 
-  /* ---- Design step : thème + couleur inline ---- */
+  /* ---- Design step controls ---- */
   #mobile-design-controls {
     display: flex;
     flex-direction: column;
@@ -323,8 +408,7 @@
     min-height: 44px;
   }
 
-  /* Hide modals backdrop on mobile wizard (use native scroll) */
-  /* Toast position for mobile */
+  /* Toast */
   .toast {
     bottom: 80px !important;
     left: 16px !important;
@@ -334,7 +418,7 @@
   }
 }
 
-/* ---- Landscape mobile ---- */
+/* ---- Landscape ---- */
 @media (max-width: 700px) and (orientation: landscape) {
   .cv-sheet {
     transform: scale(0.38) !important;
@@ -354,7 +438,7 @@
   }
 }
 
-/* ---- Tiny screens (< 380px) ---- */
+/* ---- Tiny screens ---- */
 @media (max-width: 379px) {
   .cv-sheet {
     transform: scale(0.38) !important;

@@ -1,6 +1,6 @@
 /* ============================================
    MOBILE TABS WIZARD — DesignCV
-   Sur mobile : CV en haut, formulaire par étapes en bas
+   Sur mobile : CV en haut (rétractable), formulaire par étapes en bas
    5 étapes : Identité, Profil, Expérience, Compétences, Design
    ============================================ */
 
@@ -17,6 +17,7 @@
 
   let currentStep = 0;
   let isMobile = false;
+  let cvExpanded = false;
 
   /* ---- Detect mobile ---- */
   function checkMobile() {
@@ -28,22 +29,90 @@
     const allSections = document.querySelectorAll('.form-panel > .form-section');
     if (allSections.length < 7) return;
 
-    // Section 0: Photo
     allSections[0].id = 'photo-section';
-    // Section 1: Identité & Contact
     allSections[1].id = 'identity-section';
-    // Section 2: Profil
     allSections[2].id = 'profile-section';
-    // Section 3: Expériences
     allSections[3].id = 'experience-section';
-    // Section 4: Formation
     allSections[4].id = 'education-section';
-    // Section 5: Projets
     allSections[5].id = 'project-section';
-    // Section 6: Compétences
     allSections[6].id = 'skills-section';
-    // Section 7: Langues
     if (allSections[7]) allSections[7].id = 'languages-section';
+  }
+
+  /* ---- Build CV toggle button + mini preview ---- */
+  function buildCvToggle() {
+    if (document.getElementById('mobile-cv-toggle')) return;
+
+    var previewPanel = document.querySelector('.preview-panel');
+    if (!previewPanel) return;
+
+    // Mini preview (visible quand replié)
+    var mini = document.createElement('div');
+    mini.id = 'mobile-cv-mini';
+    mini.innerHTML = '<div class="mini-cv-name">Mon CV</div><div class="mini-cv-job">Commencez à remplir vos informations</div>';
+    previewPanel.insertBefore(mini, previewPanel.firstChild);
+
+    // Toggle button
+    var toggle = document.createElement('button');
+    toggle.id = 'mobile-cv-toggle';
+    toggle.style.display = 'none';
+    toggle.innerHTML = 'Aper\u00e7u CV <span class="toggle-arrow">\u25BC</span>';
+    toggle.addEventListener('click', function () {
+      toggleCv();
+    });
+    previewPanel.insertBefore(toggle, previewPanel.firstChild);
+
+    // Separator
+    var sep = document.createElement('div');
+    sep.id = 'mobile-cv-separator';
+    sep.style.display = 'none';
+    previewPanel.appendChild(sep);
+
+    // Start collapsed
+    previewPanel.classList.add('cv-collapsed');
+  }
+
+  /* ---- Toggle CV preview ---- */
+  function toggleCv() {
+    var previewPanel = document.querySelector('.preview-panel');
+    var arrow = document.querySelector('#mobile-cv-toggle .toggle-arrow');
+    var toggle = document.getElementById('mobile-cv-toggle');
+    var sep = document.getElementById('mobile-cv-separator');
+
+    if (!previewPanel) return;
+
+    cvExpanded = !cvExpanded;
+
+    if (cvExpanded) {
+      previewPanel.classList.remove('cv-collapsed');
+      if (arrow) arrow.classList.add('open');
+      if (toggle) toggle.innerHTML = 'Masquer l\'aper\u00e7u <span class="toggle-arrow open">\u25B2</span>';
+    } else {
+      previewPanel.classList.add('cv-collapsed');
+      if (toggle) toggle.innerHTML = 'Aper\u00e7u CV <span class="toggle-arrow">\u25BC</span>';
+    }
+
+    updateMiniPreview();
+  }
+
+  /* ---- Update mini preview text ---- */
+  function updateMiniPreview() {
+    var nameEl = document.querySelector('.mini-cv-name');
+    var jobEl = document.querySelector('.mini-cv-job');
+    if (!nameEl) return;
+
+    var fn = document.getElementById('firstName');
+    var ln = document.getElementById('lastName');
+    var jt = document.getElementById('jobTitle');
+
+    var name = '';
+    if (fn && fn.value) name += fn.value + ' ';
+    if (ln && ln.value) name += ln.value;
+    nameEl.textContent = name || 'Mon CV';
+
+    if (jobEl) {
+      jobEl.textContent = jt.value || 'Commencez \u00e0 remplir vos informations';
+    }
   }
 
   /* ---- Build step bar ---- */
@@ -52,7 +121,7 @@
 
     const bar = document.createElement('div');
     bar.id = 'mobile-step-bar';
-    bar.style.display = 'none'; // hidden by default (desktop)
+    bar.style.display = 'none';
     bar.setAttribute('role', 'tablist');
     bar.setAttribute('aria-label', '\u00c9tapes du formulaire');
 
@@ -92,7 +161,6 @@
     var html = '<h2 class="section-title">\u{1F3A8} Design du CV</h2>';
     html += '<div id="mobile-design-controls">';
 
-    // Theme row
     html += '<div class="mobile-control-row">';
     html += '<span class="mobile-control-label">Th\u00e8me</span>';
     html += '<div class="mobile-theme-switcher">';
@@ -102,7 +170,6 @@
     });
     html += '</div></div>';
 
-    // Color row
     html += '<div class="mobile-control-row">';
     html += '<span class="mobile-control-label">Couleur</span>';
     html += '<div class="mobile-color-picker">';
@@ -116,7 +183,6 @@
 
     var formPanel = document.querySelector('.form-panel');
     if (formPanel) {
-      // Insert before nav
       var nav = document.getElementById('mobile-step-nav');
       if (nav) {
         formPanel.insertBefore(section, nav);
@@ -125,20 +191,16 @@
       }
     }
 
-    // Bind theme buttons
     section.querySelectorAll('.mobile-theme-btn').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var theme = this.dataset.theme;
-        // Sync with desktop theme switcher
         var desktopBtn = document.querySelector('.theme-btn[data-theme="' + theme + '"]');
         if (desktopBtn) desktopBtn.click();
-        // Update mobile active state
         section.querySelectorAll('.mobile-theme-btn').forEach(function (b) { b.classList.remove('active'); });
         this.classList.add('active');
       });
     });
 
-    // Bind color dots
     section.querySelectorAll('.mobile-color-dot').forEach(function (dot) {
       dot.addEventListener('click', function () {
         var color = this.dataset.color;
@@ -156,7 +218,7 @@
 
     var nav = document.createElement('div');
     nav.id = 'mobile-step-nav';
-    nav.style.display = 'none'; // hidden on desktop
+    nav.style.display = 'none';
     nav.innerHTML =
       '<button class="btn btn-prev" id="mobile-prev">\u2190 Pr\u00e9c\u00e9dent</button>' +
       '<button class="btn btn-next" id="mobile-next">Suivant \u2192</button>';
@@ -181,12 +243,10 @@
     currentStep = index;
     sessionStorage.setItem('designcv_mobile_step', String(index));
 
-    // Hide all form sections
     document.querySelectorAll('.form-panel > .form-section').forEach(function (s) {
       s.classList.remove('mobile-active');
     });
 
-    // Show sections for current step
     var step = STEPS[index];
     if (step.sections.length > 0) {
       step.sections.forEach(function (secId) {
@@ -198,14 +258,12 @@
       if (designEl) designEl.classList.add('mobile-active');
     }
 
-    // Update tabs
     document.querySelectorAll('.mobile-step-tab').forEach(function (tab, i) {
       tab.classList.toggle('active', i === index);
       tab.classList.toggle('completed', i < index);
       tab.setAttribute('aria-selected', i === index ? 'true' : 'false');
     });
 
-    // Update nav buttons
     var prevBtn = document.getElementById('mobile-prev');
     var nextBtn = document.getElementById('mobile-next');
     if (prevBtn) prevBtn.style.visibility = index === 0 ? 'hidden' : 'visible';
@@ -217,7 +275,6 @@
       }
     }
 
-    // Scroll active section to top
     var firstActive = document.querySelector('.form-panel .form-section.mobile-active');
     if (firstActive) {
       firstActive.scrollTop = 0;
@@ -231,11 +288,23 @@
 
     var stepBar = document.getElementById('mobile-step-bar');
     var stepNav = document.getElementById('mobile-step-nav');
+    var toggle = document.getElementById('mobile-cv-toggle');
+    var sep = document.getElementById('mobile-cv-separator');
+
     if (stepBar) stepBar.style.display = 'flex';
     if (stepNav) stepNav.style.display = 'flex';
+    if (toggle) toggle.style.display = 'flex';
+    if (sep) sep.style.display = 'block';
+
+    // Ensure collapsed by default
+    var previewPanel = document.querySelector('.preview-panel');
+    if (previewPanel && !cvExpanded) {
+      previewPanel.classList.add('cv-collapsed');
+    }
 
     goToStep(currentStep);
     syncDesignControls();
+    updateMiniPreview();
   }
 
   /* ---- Deactivate mobile mode ---- */
@@ -245,10 +314,20 @@
 
     var stepBar = document.getElementById('mobile-step-bar');
     var stepNav = document.getElementById('mobile-step-nav');
+    var toggle = document.getElementById('mobile-cv-toggle');
+    var sep = document.getElementById('mobile-cv-separator');
+    var previewPanel = document.querySelector('.preview-panel');
+
     if (stepBar) stepBar.style.display = 'none';
     if (stepNav) stepNav.style.display = 'none';
+    if (toggle) toggle.style.display = 'none';
+    if (sep) sep.style.display = 'none';
 
-    // Show all sections again
+    // Restore normal preview
+    if (previewPanel) {
+      previewPanel.classList.remove('cv-collapsed');
+    }
+
     document.querySelectorAll('.form-panel > .form-section').forEach(function (s) {
       s.classList.remove('mobile-active');
       s.style.display = '';
@@ -257,7 +336,6 @@
 
   /* ---- Sync design controls with desktop state ---- */
   function syncDesignControls() {
-    // Sync active theme
     var activeTheme = document.querySelector('.theme-btn.active');
     if (activeTheme) {
       var t = activeTheme.dataset.theme;
@@ -266,7 +344,6 @@
       });
     }
 
-    // Sync active color
     var activeColor = document.querySelector('.color-dot.active');
     if (activeColor) {
       var c = activeColor.dataset.color;
@@ -276,21 +353,31 @@
     }
   }
 
-  /* ---- Handle download button in wizard ---- */
+  /* ---- Handle download on last step ---- */
   function bindDownloadNav() {
     var nextBtn = document.getElementById('mobile-next');
     if (!nextBtn) return;
 
     nextBtn.addEventListener('click', function (e) {
       if (currentStep === STEPS.length - 1) {
-        // Trigger PDF download
         var dlBtn = document.getElementById('btn-download');
         if (dlBtn) dlBtn.click();
       }
     });
   }
 
-  /* ---- Observe desktop theme/color changes to sync mobile ---- */
+  /* ---- Listen form inputs to update mini preview ---- */
+  function bindFormListeners() {
+ var fields = ['firstName', 'lastName', 'jobTitle'];
+    fields.forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', updateMiniPreview);
+      }
+    });
+  }
+
+  /* ---- Observe desktop theme/color changes ---- */
   function observeDesktopChanges() {
     var observer = new MutationObserver(function () {
       if (isMobile) syncDesignControls();
@@ -305,17 +392,18 @@
   /* ---- Init ---- */
   function init() {
     mapSections();
+    buildCvToggle();
     buildStepBar();
     buildDesignStep();
     buildStepNav();
     bindDownloadNav();
+    bindFormListeners();
     observeDesktopChanges();
 
     if (checkMobile()) {
       activateMobile();
     }
 
-    // Listen for resize
     var resizeTimer;
     window.addEventListener('resize', function () {
       clearTimeout(resizeTimer);
@@ -328,7 +416,6 @@
       }, 150);
     });
 
-    // Restore step from sessionStorage
     var savedStep = sessionStorage.getItem('designcv_mobile_step');
     if (savedStep !== null) {
       var n = parseInt(savedStep, 10);
@@ -338,7 +425,6 @@
     }
   }
 
-  // Wait for DOM
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
