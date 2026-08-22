@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Sitemap: https://design-cv.com/sitemap.xml
+
+# Bloquer l'app (pas besoin d'indexer l'editeur)
+User-agent: *
+Disallow: /api/
