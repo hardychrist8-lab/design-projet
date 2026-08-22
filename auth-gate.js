@@ -1,19 +1,14 @@
 /* =====================================================================
  * auth-gate.js  —  DesignCV Phase 4 (Modules 2, 3, 4)
  * ---------------------------------------------------------------------
- * Auth Supabase + Cloud Save/Load + Gate différée hybride.
+ * Auth Supabase via fetch() direct (ZÉRO CDN) + Cloud Save/Load + Gate.
  *
  * PRINCIPE :
+ *  - Auth et DB via fetch() vers l'API REST Supabase.
  *  - Si Supabase n'est PAS configuré → tout fonctionne comme avant
  *    (PDF, historique local, optimisation — AUCUNE régression).
  *  - Si Supabase EST configuré → les actions PDF / Sauvegarde cloud /
  *    Optimisation nécessitent d'être connecté (gate différée).
- *    L'utilisateur découvre l'app librement ; la connexion est
- *    demandée uniquement au moment de l'action.
- *
- * NE MODIFIE PAS app.js. Intercepte les clics en phase de capture
- * (stopImmediatePropagation) pour ne pas laisser les handlers
- * existants de app.js se déclencher.
  * ===================================================================== */
 
 (function () {
@@ -27,60 +22,119 @@
   const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
 
   // -----------------------------------------------------------------
-  // ⚙️  CONFIGURATION — Remplacer par vos vraies valeurs Supabase
+  // ⚙️  CONFIGURATION
   // -----------------------------------------------------------------
   const CONFIG = {
     supabaseUrl: 'https://nuogpqbwumbvbdmwcyyr.supabase.co',
     supabaseAnonKey: 'sb_publishable_VMaj7rVvYUYk3o18I0BvVw_an71dkJ5',
   };
+  const AUTH_API = CONFIG.supabaseUrl + '/auth/v1';
+  const REST_API = CONFIG.supabaseUrl + '/rest/v1';
+  const STORAGE_KEY = 'sb-nuogpqbwumbvbdmwcyyr-auth-token';
 
   // -----------------------------------------------------------------
   // État interne
   // -----------------------------------------------------------------
-  let supabase = null;
   let currentUser = null;
   let isConfigured = false;
-  let pendingAction = null; // fonction à exécuter après connexion
+  let pendingAction = null;
   let modalEl = null;
 
   // -----------------------------------------------------------------
-  // Init Supabase
+  // Token helpers
   // -----------------------------------------------------------------
-  function initSupabase() {
-    if (!window.supabase || !window.supabase.createClient) {
-      console.warn('[DesignCV] Supabase JS client non chargé.');
-      return false;
-    }
+  function getSession() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch (e) { return null; }
+  }
+
+  function saveSession(data) {
+    const session = {
+      access_token: data.access_token,
+      refresh_token: data.refresh_token,
+      expires_in: data.expires_in || 3600,
+      expires_at: Math.floor(Date.now() / 1000) + (data.expires_in || 3600),
+      token_type: data.token_type || 'bearer',
+      user: data.user
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
+    return session;
+  }
+
+  function clearSession() {
+    localStorage.removeItem(STORAGE_KEY);
+  }
+
+  function getAccessToken() {
+    const s = getSession();
+    return s ? s.access_token : null;
+  }
+
+  function isTokenValid() {
+    const s = getSession();
+    if (!s || !s.access_token) return false;
+    if (s.expires_at && s.expires_at > Math.floor(Date.now() / 1000) + 60) return true;
+    return false;
+  }
+
+  async function refreshAccessToken() {
+    const s = getSession();
+    if (!s || !s.refresh_token) return false;
+    try {
+      const r = await fetch(AUTH_API + '/token?grant_type=refresh_token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': CONFIG.supabaseAnonKey },
+        body: JSON.stringify({ refresh_token: s.refresh_token })
+      });
+      if (!r.ok) { clearSession(); return false; }
+      const data = await r.json();
+      saveSession(data);
+      currentUser = data.user;
+      return true;
+    } catch (e) { return false; }
+  }
+
+  // -----------------------------------------------------------------
+  // Init (plus besoin du SDK CDN)
+  // -----------------------------------------------------------------
+  function initAuth() {
     if (!CONFIG.supabaseUrl || CONFIG.supabaseUrl === 'YOUR_SUPABASE_URL') {
       console.log('[DesignCV] Phase 4 — Supabase non configuré, mode local uniquement.');
       return false;
     }
-    try {
-      supabase = window.supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseAnonKey);
-      isConfigured = true;
-      console.log('[DesignCV] Phase 4 — Supabase initialisé.');
-      return true;
-    } catch (err) {
-      console.error('[DesignCV] Erreur init Supabase:', err);
-      return false;
-    }
+    isConfigured = true;
+    console.log('[DesignCV] Phase 4 — Supabase initialisé (fetch direct).');
+    return true;
   }
 
   // -----------------------------------------------------------------
   // Session restore + protection de la page app.html
-  // Si Supabase est configuré et pas de session → redirect vers index.html
   // -----------------------------------------------------------------
   async function restoreSession() {
-    if (!supabase) return;
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        currentUser = session.user;
+      // Vérifier si le hash contient des tokens (retour OAuth Google)
+      handleOAuthCallback();
+
+      if (isTokenValid()) {
+        const s = getSession();
+        currentUser = s.user;
         onLoginSuccess();
         console.log('[DesignCV] Session restaurée pour', currentUser.email);
-      } else if (isConfigured) {
-        // Pas connecté + Supabase actif → redirect vers landing
-        // Préserver le paramètre ?cv=ID si présent (lien depuis email)
+        return;
+      }
+
+      // Tenter le refresh
+      if (await refreshAccessToken()) {
+        onLoginSuccess();
+        console.log('[DesignCV] Session rafraîchie pour', currentUser.email);
+        return;
+      }
+
+      // Pas de session valide
+      if (isConfigured) {
         console.log('[DesignCV] Non connecté, redirection vers la landing.');
         const cvParam = new URLSearchParams(window.location.search).get('cv');
         const redirectUrl = cvParam ? 'index.html?cv=' + encodeURIComponent(cvParam) : 'index.html';
@@ -90,48 +144,126 @@
   }
 
   // -----------------------------------------------------------------
-  // Auth : login / signup / logout
+  // Handle OAuth callback (Google login redirect)
+  // -----------------------------------------------------------------
+  function handleOAuthCallback() {
+    const hash = window.location.hash;
+    if (!hash || hash.indexOf('access_token') === -1) return;
+
+    const params = new URLSearchParams(hash.substring(1));
+    const accessToken = params.get('access_token');
+    const refreshToken = params.get('refresh_token');
+    const expiresIn = parseInt(params.get('expires_in') || '3600', 10);
+    const type = params.get('token_type') || 'bearer';
+
+    if (!accessToken) return;
+
+    // Récupérer les infos user
+    fetch(AUTH_API + '/user', {
+      headers: { 'Authorization': 'Bearer ' + accessToken, 'apikey': CONFIG.supabaseAnonKey }
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(user) {
+      saveSession({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+        expires_in: expiresIn,
+        token_type: type,
+        user: user
+      });
+      currentUser = user;
+      // Nettoyer le hash
+      window.history.replaceState({}, '', window.location.pathname);
+      onLoginSuccess();
+      if (typeof window.showToast === 'function') window.showToast('Connecté !', 'success');
+    })
+    .catch(function(e) {
+      console.error('[DesignCV] OAuth callback error:', e);
+    });
+  }
+
+  // -----------------------------------------------------------------
+  // Auth : login / signup / logout via fetch()
   // -----------------------------------------------------------------
   async function handleLogin(email, password) {
-    if (!supabase) return;
     setLoading(true);
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
-    if (error) { showError(error.message); return; }
-    currentUser = data.user;
-    closeAuthModal();
-    onLoginSuccess();
-    if (typeof window.showToast === 'function') window.showToast('Connecté !', 'success');
-    if (pendingAction) { const fn = pendingAction; pendingAction = null; setTimeout(fn, 200); }
+    try {
+      const r = await fetch(AUTH_API + '/token?grant_type=password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': CONFIG.supabaseAnonKey },
+        body: JSON.stringify({ email: email, password: password })
+      });
+      const data = await r.json();
+      if (!r.ok) {
+        showError(friendlyError(data.msg || data.error_description || data.error || 'Erreur de connexion'));
+        return;
+      }
+      saveSession(data);
+      currentUser = data.user;
+      closeAuthModal();
+      onLoginSuccess();
+      if (typeof window.showToast === 'function') window.showToast('Connecté !', 'success');
+      if (pendingAction) { var fn = pendingAction; pendingAction = null; setTimeout(fn, 200); }
+    } catch (err) {
+      showError('Erreur réseau. Vérifiez votre connexion internet.');
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handleSignup(email, password, displayName) {
-    if (!supabase) return;
     setLoading(true);
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { display_name: displayName } },
-    });
-    setLoading(false);
-    if (error) { showError(error.message); return; }
-    showInfo('Compte créé ! Vérifiez votre email pour confirmer, puis connectez-vous.');
+    try {
+      const r = await fetch(AUTH_API + '/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': CONFIG.supabaseAnonKey },
+        body: JSON.stringify({ email: email, password: password, data: { display_name: displayName } })
+      });
+      const data = await r.json();
+      if (!r.ok) {
+        showError(friendlyError(data.msg || data.error_description || data.error || 'Erreur lors de la création'));
+        return;
+      }
+      showInfo('Compte créé ! Vérifiez votre email pour confirmer, puis connectez-vous.');
+    } catch (err) {
+      showError('Erreur réseau. Vérifiez votre connexion internet.');
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handleLogout() {
-    if (!supabase) return;
-    await supabase.auth.signOut();
+    try {
+      var token = getAccessToken();
+      if (token) {
+        fetch(AUTH_API + '/logout', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + token, 'apikey': CONFIG.supabaseAnonKey }
+        }).catch(function() {});
+      }
+    } catch(e) { /* silent */ }
+    clearSession();
     currentUser = null;
     onLogoutCleanup();
-    // Redirect vers landing page
     window.location.replace('index.html');
   }
 
   // -----------------------------------------------------------------
-  // Cloud save / load
+  // REST API helpers pour la DB (saved_cvs)
+  // -----------------------------------------------------------------
+  function dbHeaders() {
+    return {
+      'Content-Type': 'application/json',
+      'apikey': CONFIG.supabaseAnonKey,
+      'Authorization': 'Bearer ' + getAccessToken()
+    };
+  }
+
+  // -----------------------------------------------------------------
+  // Cloud save / load via REST API
   // -----------------------------------------------------------------
   async function saveToCloud(name) {
-    if (!supabase || !currentUser) return false;
+    if (!currentUser) return false;
     try {
       const cvState = buildCurrentState();
       if (!cvState) return false;
@@ -145,68 +277,81 @@
       }
 
       // Sécurité: limiter le nombre de CV par utilisateur (max 50)
-      const { count } = await supabase.from('saved_cvs').select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id);
-      if (count != null && count >= 50) {
-        if (typeof window.showToast === 'function') window.showToast('Limite de 50 CV atteinte. Supprimez-en un.', 'error');
-        return false;
+      const countR = await fetch(REST_API + '/saved_cvs?select=id&user_id=eq.' + currentUser.id, {
+        headers: { 'apikey': CONFIG.supabaseAnonKey, 'Authorization': 'Bearer ' + getAccessToken(), 'Prefer': 'count=exact', 'Range': '0-0' }
+      });
+      var contentRange = countR.headers.get('content-range');
+      if (contentRange) {
+        var total = parseInt(contentRange.split('/')[1], 10);
+        if (!isNaN(total) && total >= 50) {
+          if (typeof window.showToast === 'function') window.showToast('Limite de 50 CV atteinte. Supprimez-en un.', 'error');
+          return false;
+        }
       }
 
-      const { data: inserted, error } = await supabase.from('saved_cvs').insert({
-        user_id: currentUser.id,
-        name: (name || 'Mon CV').substring(0, 200),
-        data: cvState,
-      }).select('id').single();
-      if (error) { console.error('[DesignCV] Cloud save error:', error); return false; }
+      var insertR = await fetch(REST_API + '/saved_cvs', {
+        method: 'POST',
+        headers: dbHeaders(),
+        body: JSON.stringify({
+          user_id: currentUser.id,
+          name: (name || 'Mon CV').substring(0, 200),
+          data: cvState,
+        })
+      });
+      var insertData = await insertR.json();
+      if (!insertR.ok) {
+        console.error('[DesignCV] Cloud save error:', insertData);
+        return false;
+      }
       if (typeof window.showToast === 'function') window.showToast('CV sauvegardé dans le cloud !', 'success');
       refreshCloudList();
-      // Envoyer l'email de notification (fire & forget)
-      sendCvSavedEmail(name || 'Mon CV', inserted?.id);
+      sendCvSavedEmail(name || 'Mon CV', insertData.id);
       return true;
     } catch (e) { console.error('[DesignCV] Cloud save error:', e); return false; }
   }
 
   async function loadFromCloud(id) {
-    if (!supabase || !currentUser) return;
+    if (!currentUser) return;
     try {
-      const { data, error } = await supabase
-        .from('saved_cvs')
-        .select('*')
-        .eq('id', id)
-        .single();
-      if (error || !data) return;
-      // Utilise le mécanisme natif de chargement de l'historique
-      // en injectant dans localStorage et en appelant loadFromHistory
-      injectCloudCVAsLocal(data);
+      var r = await fetch(REST_API + '/saved_cvs?id=eq.' + id + '&user_id=eq.' + currentUser.id, {
+        headers: dbHeaders()
+      });
+      var data = await r.json();
+      if (!data || data.length === 0) return;
+      injectCloudCVAsLocal(data[0]);
       if (typeof window.showToast === 'function') window.showToast('CV chargé depuis le cloud.', 'success');
       closeHistoryModalIfNeeded();
     } catch (e) { console.error('[DesignCV] Cloud load error:', e); }
   }
 
   async function deleteFromCloud(id) {
-    if (!supabase || !currentUser) return;
-    const { error } = await supabase.from('saved_cvs').delete().eq('id', id);
-    if (!error) {
-      refreshCloudList();
-      if (typeof window.showToast === 'function') window.showToast('CV supprimé du cloud.', 'success');
-    }
+    if (!currentUser) return;
+    try {
+      var r = await fetch(REST_API + '/saved_cvs?id=eq.' + id, {
+        method: 'DELETE',
+        headers: dbHeaders()
+      });
+      if (r.ok) {
+        refreshCloudList();
+        if (typeof window.showToast === 'function') window.showToast('CV supprimé du cloud.', 'success');
+      }
+    } catch (e) { /* silent */ }
   }
 
   async function refreshCloudList() {
-    if (!supabase || !currentUser) return;
+    if (!currentUser) return;
     try {
-      const { data, error } = await supabase
-        .from('saved_cvs')
-        .select('*')
-        .eq('user_id', currentUser.id)
-        .order('updated_at', { ascending: false });
-      if (error || !data) return;
+      var r = await fetch(REST_API + '/saved_cvs?user_id=eq.' + currentUser.id + '&order=updated_at.desc', {
+        headers: dbHeaders()
+      });
+      var data = await r.json();
+      if (!data) return;
       renderCloudList(data);
     } catch (e) { /* silent */ }
   }
 
-  // Construire l'état du CV à partir du DOM (puisque app.js state n'est pas exposé)
+  // Construire l'état du CV à partir du DOM
   function buildCurrentState() {
-    // On capture les valeurs du formulaire
     const personal = {
       firstName: $('#firstName')?.value || '',
       lastName: $('#lastName')?.value || '',
@@ -223,12 +368,10 @@
     const otherSkills = Array.from($$('#other-skills-container .skill-tag')).map(t => {
       const c = t.cloneNode(true); const r = c.querySelector('.skill-remove'); if (r) r.remove(); return c.textContent.trim();
     });
-    // Experiences, education, projects, languages — on lit les entry-cards
     const experiences = collectCards('exp');
     const education = collectCards('edu');
     const projects = collectCards('proj');
     const languages = collectCards('lang');
-    // Theme et couleur
     const theme = ($('.theme-btn.active')?.dataset.theme) || 'classic';
     const color = ($('.color-dot.active')?.dataset.color) || '#4F46E5';
     return { personal, profile, experiences, education, projects, languages, skills: { technical: techSkills, other: otherSkills }, theme, color };
@@ -253,7 +396,6 @@
   // Injecter un CV cloud dans le localStorage puis le charger
   function injectCloudCVAsLocal(cvRecord) {
     const d = cvRecord.data;
-    // Construit une entrée compatible avec le format localStorage de app.js
     const entry = {
       id: Date.now(),
       name: cvRecord.name,
@@ -270,14 +412,12 @@
         color: d.color || '#4F46E5',
       },
     };
-    // Sauvegarder dans localStorage au format app.js
     try {
-      const STORAGE_KEY = 'designcv_history';
-      let history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      const STORAGE_HIST = 'designcv_history';
+      let history = JSON.parse(localStorage.getItem(STORAGE_HIST) || '[]');
       history.unshift(entry);
       if (history.length > 20) history = history.slice(0, 20);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
-      // Appeler la fonction native de chargement avec l'ID de l'entrée
+      localStorage.setItem(STORAGE_HIST, JSON.stringify(history));
       if (typeof window.loadFromHistory === 'function') {
         window.loadFromHistory(entry.id);
       }
@@ -290,14 +430,9 @@
   }
 
   // -----------------------------------------------------------------
-  // Les gates PDF/Optimize ne sont plus nécessaires car
-  // l'accès à app.html est désormais protégé par auth.
-  // (code conservé mais désactivé)
+  // Gates (désactivées — l'accès à app.html est protégé par auth)
   // -----------------------------------------------------------------
-  function installGates() {
-    // Gates supprimées — l'utilisateur est déjà authentifié
-    // pour accéder à app.html.
-  }
+  function installGates() { /* gates supprimées */ }
 
   // -----------------------------------------------------------------
   // Auto-save cloud quand on télécharge le PDF
@@ -305,12 +440,8 @@
   function installPdfAutoSave() {
     const dlBtn = $('#btn-download');
     if (!dlBtn) return;
-    // Intercepter le clic sur le bouton download
-    // On écoute en capture pour agir avant le handler de app.js
     dlBtn.addEventListener('click', async () => {
-      // Attendre que le PDF soit généré (app.js montre un toast "PDF téléchargé")
-      // On sauvegarde immédiatement en parallèle
-      if (!supabase || !currentUser) return;
+      if (!currentUser) return;
       const name = $('#firstName')?.value ? `${$('#firstName').value} ${$('#lastName')?.value}`.trim() : 'Mon CV';
       await saveToCloud(name);
     });
@@ -393,25 +524,11 @@
       }
     });
 
-    // Esc ferme la modale
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && modalEl?.classList.contains('is-open')) {
         closeAuthModal();
       }
     });
-
-    // Écouter les changements d'auth Supabase
-    if (supabase) {
-      supabase.auth.onAuthStateChange((event, session) => {
-        if (event === 'SIGNED_IN' && session?.user) {
-          currentUser = session.user;
-          onLoginSuccess();
-        } else if (event === 'SIGNED_OUT') {
-          currentUser = null;
-          onLogoutCleanup();
-        }
-      });
-    }
   }
 
   function showAuthModal(actionAfterLogin) {
@@ -419,7 +536,6 @@
     pendingAction = actionAfterLogin || null;
     modalEl.classList.add('is-open');
     clearMessages();
-    // Reset form
     $('#auth-form', modalEl).reset();
     const emailInput = $('#auth-email', modalEl);
     if (emailInput) setTimeout(() => emailInput.focus(), REDUCED_MOTION ? 0 : 200);
@@ -455,7 +571,8 @@
     const btn = $('#auth-submit', modalEl);
     if (!btn) return;
     btn.disabled = loading;
-    btn.textContent = loading ? 'Chargement...' : btn.textContent;
+    btn.textContent = loading ? 'Chargement...' : (btn.dataset.originalText || btn.textContent);
+    if (!loading && !btn.dataset.originalText) btn.dataset.originalText = btn.textContent;
   }
 
   // -----------------------------------------------------------------
@@ -466,7 +583,6 @@
     injectCloudUI();
     refreshCloudList();
     installPdfAutoSave();
-    // Vérifier si un CV spécifique doit être chargé (depuis un lien email)
     checkUrlCvParam();
   }
 
@@ -512,7 +628,6 @@
         </button>
       </div>
     `;
-    // Wire
     $('#user-menu-btn', menu).addEventListener('click', (e) => {
       e.stopPropagation();
       const dd = $('#user-dropdown', menu);
@@ -525,7 +640,6 @@
       closeDropdown();
     });
     $('#user-open-history', menu).addEventListener('click', () => {
-      // Ouvre la modale historique
       const histBtn = $('#btn-history');
       if (histBtn) histBtn.click();
       closeDropdown();
@@ -534,7 +648,6 @@
       handleLogout();
       closeDropdown();
     });
-    // Fermer le dropdown au clic extérieur
     document.addEventListener('click', closeDropdown);
   }
 
@@ -545,7 +658,6 @@
     if (btn) btn.setAttribute('aria-expanded', 'false');
   }
 
-  // Inject cloud section dans la modale historique
   function injectCloudUI() {
     if (!currentUser) return;
     const modalBody = $('.modal-body', $('#history-modal'));
@@ -562,14 +674,12 @@
         <p class="cloud-empty">Chargement...</p>
       </div>
     `;
-    // Insère avant la section locale
     const localDesc = modalBody.querySelector('.modal-desc');
     if (localDesc && localDesc.nextSibling) {
       modalBody.insertBefore(cloudDiv, localDesc.nextSibling);
     } else {
       modalBody.prepend(cloudDiv);
     }
-    // Wire save button
     $('#cloud-save-btn', cloudDiv).addEventListener('click', () => {
       const name = $('#firstName')?.value ? `${$('#firstName').value} ${$('#lastName')?.value}`.trim() : 'Mon CV';
       saveToCloud(name);
@@ -603,7 +713,6 @@
           </div>
         </div>`;
     }).join('');
-    // Wire
     $$('.cloud-load-btn', list).forEach(btn => {
       btn.addEventListener('click', () => loadFromCloud(btn.dataset.id));
     });
@@ -618,12 +727,14 @@
   function sendCvSavedEmail(cvName, cvId) {
     if (!currentUser?.email) return;
     const displayName = currentUser.user_metadata?.display_name || currentUser.email.split('@')[0] || '';
-    // Compter le nombre total de CVs
     (async () => {
       let total = 1;
       try {
-        const { count } = await supabase.from('saved_cvs').select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id);
-        if (count != null) total = count;
+        var countR = await fetch(REST_API + '/saved_cvs?select=id&user_id=eq.' + currentUser.id, {
+          headers: { 'apikey': CONFIG.supabaseAnonKey, 'Authorization': 'Bearer ' + getAccessToken(), 'Prefer': 'count=exact', 'Range': '0-0' }
+        });
+        var cr = countR.headers.get('content-range');
+        if (cr) { var t = parseInt(cr.split('/')[1], 10); if (!isNaN(t)) total = t; }
       } catch (_) { /* keep default */ }
       fetch('/api/send-email', {
         method: 'POST',
@@ -636,7 +747,7 @@
           totalCvs: total,
           cvId: cvId || '',
         }),
-      }).catch(() => {});
+      }).catch(function() {});
     })();
   }
 
@@ -646,10 +757,8 @@
   function checkUrlCvParam() {
     const params = new URLSearchParams(window.location.search);
     const cvId = params.get('cv');
-    if (!cvId || !supabase || !currentUser) return;
-    // Nettoyer l'URL sans recharger
+    if (!cvId || !currentUser) return;
     window.history.replaceState({}, '', window.location.pathname);
-    // Charger le CV spécifique après un court délai pour que app.js soit prêt
     setTimeout(() => loadFromCloud(cvId), 800);
     if (typeof window.showToast === 'function') window.showToast('Chargement de votre CV...', 'info');
   }
@@ -661,15 +770,28 @@
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
+  function friendlyError(msg) {
+    var map = {
+      'Invalid login credentials': 'Email ou mot de passe incorrect.',
+      'invalid_grant': 'Email ou mot de passe incorrect.',
+      'User already registered': 'Un compte existe déjà avec cet email.',
+      'Email not confirmed': 'Veuillez confirmer votre email avant de vous connecter.',
+      'Too many requests': 'Trop de tentatives. Réessayez dans quelques instants.',
+      'Network request failed': 'Erreur réseau. Vérifiez votre connexion.'
+    };
+    for (var key in map) {
+      if (msg.indexOf(key) !== -1) return map[key];
+    }
+    return msg;
+  }
+
   // -----------------------------------------------------------------
   // Boot
   // -----------------------------------------------------------------
   function boot() {
-    if (initSupabase()) {
+    if (initAuth()) {
       restoreSession();
       installGates();
-      // Si session restaurée, vérifier aussi le paramètre URL
-      // (onLoginSuccess sera appelé par restoreSession)
     }
   }
 
@@ -690,5 +812,5 @@
     getUser: () => currentUser,
   };
 
-  console.log('[DesignCV] Phase 4 — Auth gate chargé.', isConfigured ? '(Supabase actif)' : '(mode local)');
+  console.log('[DesignCV] Phase 4 — Auth gate chargé.', isConfigured ? '(Supabase fetch direct)' : '(mode local)');
 })();
