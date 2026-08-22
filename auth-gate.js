@@ -259,13 +259,14 @@
     };
     // Sauvegarder dans localStorage au format app.js
     try {
-      let history = JSON.parse(localStorage.getItem('cvHistory') || '[]');
+      const STORAGE_KEY = 'designcv_history';
+      let history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
       history.unshift(entry);
       if (history.length > 20) history = history.slice(0, 20);
-      localStorage.setItem('cvHistory', JSON.stringify(history));
-      // Appeler la fonction native de chargement
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+      // Appeler la fonction native de chargement avec l'ID de l'entrée
       if (typeof window.loadFromHistory === 'function') {
-        window.loadFromHistory(entry);
+        window.loadFromHistory(entry.id);
       }
     } catch (e) { console.error('[DesignCV] Cloud load inject error:', e); }
   }
@@ -283,6 +284,23 @@
   function installGates() {
     // Gates supprimées — l'utilisateur est déjà authentifié
     // pour accéder à app.html.
+  }
+
+  // -----------------------------------------------------------------
+  // Auto-save cloud quand on télécharge le PDF
+  // -----------------------------------------------------------------
+  function installPdfAutoSave() {
+    const dlBtn = $('#btn-download');
+    if (!dlBtn) return;
+    // Intercepter le clic sur le bouton download
+    // On écoute en capture pour agir avant le handler de app.js
+    dlBtn.addEventListener('click', async () => {
+      // Attendre que le PDF soit généré (app.js montre un toast "PDF téléchargé")
+      // On sauvegarde immédiatement en parallèle
+      if (!supabase || !currentUser) return;
+      const name = $('#firstName')?.value ? `${$('#firstName').value} ${$('#lastName')?.value}`.trim() : 'Mon CV';
+      await saveToCloud(name);
+    });
   }
 
   // -----------------------------------------------------------------
@@ -434,6 +452,7 @@
     renderUserMenu();
     injectCloudUI();
     refreshCloudList();
+    installPdfAutoSave();
     // Vérifier si un CV spécifique doit être chargé (depuis un lien email)
     checkUrlCvParam();
   }
