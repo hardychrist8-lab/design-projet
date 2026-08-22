@@ -1,6 +1,6 @@
 /* ============================================
    MOBILE TABS WIZARD — DesignCV
-   Sur mobile : CV en haut (rétractable), formulaire par étapes en bas
+   Sur mobile : CV en haut, formulaire par étapes en bas
    5 étapes : Identité, Profil, Expérience, Compétences, Design
    ============================================ */
 
@@ -17,18 +17,15 @@
 
   let currentStep = 0;
   let isMobile = false;
-  let cvExpanded = false;
 
-  /* ---- Detect mobile ---- */
   function checkMobile() {
     return window.innerWidth <= 700;
   }
 
-  /* ---- Map form-section to step sections ---- */
+  /* ---- Map form sections to IDs ---- */
   function mapSections() {
-    const allSections = document.querySelectorAll('.form-panel > .form-section');
+    var allSections = document.querySelectorAll('.form-panel > .form-section');
     if (allSections.length < 7) return;
-
     allSections[0].id = 'photo-section';
     allSections[1].id = 'identity-section';
     allSections[2].id = 'profile-section';
@@ -39,87 +36,30 @@
     if (allSections[7]) allSections[7].id = 'languages-section';
   }
 
-  /* ---- Build CV toggle button + mini preview ---- */
-  function buildCvToggle() {
-    if (document.getElementById('mobile-cv-toggle')) return;
+  /* ---- Ensure ALL form inputs trigger CV update ---- */
+  function bindAllInputs() {
+    var formPanel = document.querySelector('.form-panel');
+    if (!formPanel) return;
 
-    var previewPanel = document.querySelector('.preview-panel');
-    if (!previewPanel) return;
-
-    // Mini preview (visible quand replié)
-    var mini = document.createElement('div');
-    mini.id = 'mobile-cv-mini';
-    mini.innerHTML = '<div class="mini-cv-name">Mon CV</div><div class="mini-cv-job">Commencez à remplir vos informations</div>';
-    previewPanel.insertBefore(mini, previewPanel.firstChild);
-
-    // Toggle button
-    var toggle = document.createElement('button');
-    toggle.id = 'mobile-cv-toggle';
-    toggle.style.display = 'none';
-    toggle.innerHTML = 'Aper\u00e7u CV <span class="toggle-arrow">\u25BC</span>';
-    toggle.addEventListener('click', function () {
-      toggleCv();
+    // Use event delegation on the entire form panel
+    formPanel.addEventListener('input', function (e) {
+      if (e.target.matches('input, textarea, select') && typeof window.syncAndRender === 'function') {
+        window.syncAndRender();
+      }
     });
-    previewPanel.insertBefore(toggle, previewPanel.firstChild);
 
-    // Separator
-    var sep = document.createElement('div');
-    sep.id = 'mobile-cv-separator';
-    sep.style.display = 'none';
-    previewPanel.appendChild(sep);
-
-    // Start collapsed
-    previewPanel.classList.add('cv-collapsed');
-  }
-
-  /* ---- Toggle CV preview ---- */
-  function toggleCv() {
-    var previewPanel = document.querySelector('.preview-panel');
-    var arrow = document.querySelector('#mobile-cv-toggle .toggle-arrow');
-    var toggle = document.getElementById('mobile-cv-toggle');
-    var sep = document.getElementById('mobile-cv-separator');
-
-    if (!previewPanel) return;
-
-    cvExpanded = !cvExpanded;
-
-    if (cvExpanded) {
-      previewPanel.classList.remove('cv-collapsed');
-      if (arrow) arrow.classList.add('open');
-      if (toggle) toggle.innerHTML = 'Masquer l\'aper\u00e7u <span class="toggle-arrow open">\u25B2</span>';
-    } else {
-      previewPanel.classList.add('cv-collapsed');
-      if (toggle) toggle.innerHTML = 'Aper\u00e7u CV <span class="toggle-arrow">\u25BC</span>';
-    }
-
-    updateMiniPreview();
-  }
-
-  /* ---- Update mini preview text ---- */
-  function updateMiniPreview() {
-    var nameEl = document.querySelector('.mini-cv-name');
-    var jobEl = document.querySelector('.mini-cv-job');
-    if (!nameEl) return;
-
-    var fn = document.getElementById('firstName');
-    var ln = document.getElementById('lastName');
-    var jt = document.getElementById('jobTitle');
-
-    var name = '';
-    if (fn && fn.value) name += fn.value + ' ';
-    if (ln && ln.value) name += ln.value;
-    nameEl.textContent = name || 'Mon CV';
-
-    if (jobEl) {
-      jobEl.textContent = jt.value || 'Commencez \u00e0 remplir vos informations';
-    }
+    formPanel.addEventListener('change', function (e) {
+      if (e.target.matches('input, textarea, select') && typeof window.syncAndRender === 'function') {
+        window.syncAndRender();
+      }
+    });
   }
 
   /* ---- Build step bar ---- */
   function buildStepBar() {
     if (document.getElementById('mobile-step-bar')) return;
 
-    const bar = document.createElement('div');
+    var bar = document.createElement('div');
     bar.id = 'mobile-step-bar';
     bar.style.display = 'none';
     bar.setAttribute('role', 'tablist');
@@ -135,24 +75,18 @@
       tab.innerHTML =
         '<span class="step-icon">' + step.icon + '</span>' +
         '<span class="step-label">' + step.label + '</span>';
-      tab.addEventListener('click', function () {
-        goToStep(i);
-      });
+      tab.addEventListener('click', function () { goToStep(i); });
       bar.appendChild(tab);
     });
 
     var formPanel = document.querySelector('.form-panel');
-    if (formPanel) {
-      formPanel.insertBefore(bar, formPanel.firstChild);
-    }
+    if (formPanel) formPanel.insertBefore(bar, formPanel.firstChild);
   }
 
-  /* ---- Build design controls (theme + color) for step 5 ---- */
+  /* ---- Build design step ---- */
   function buildDesignStep() {
     if (document.getElementById('mobile-design-controls')) return;
-
-    var existingSection = document.getElementById('step-design');
-    if (existingSection) return;
+    if (document.getElementById('step-design')) return;
 
     var section = document.createElement('section');
     section.className = 'form-section';
@@ -177,18 +111,14 @@
       html += '<button class="mobile-color-dot" data-color="' + c + '" style="background:' + c + '"></button>';
     });
     html += '</div></div>';
-
     html += '</div>';
     section.innerHTML = html;
 
     var formPanel = document.querySelector('.form-panel');
     if (formPanel) {
       var nav = document.getElementById('mobile-step-nav');
-      if (nav) {
-        formPanel.insertBefore(section, nav);
-      } else {
-        formPanel.appendChild(section);
-      }
+      if (nav) formPanel.insertBefore(section, nav);
+      else formPanel.appendChild(section);
     }
 
     section.querySelectorAll('.mobile-theme-btn').forEach(function (btn) {
@@ -224,9 +154,7 @@
       '<button class="btn btn-next" id="mobile-next">Suivant \u2192</button>';
 
     var formPanel = document.querySelector('.form-panel');
-    if (formPanel) {
-      formPanel.appendChild(nav);
-    }
+    if (formPanel) formPanel.appendChild(nav);
 
     document.getElementById('mobile-prev').addEventListener('click', function () {
       if (currentStep > 0) goToStep(currentStep - 1);
@@ -268,65 +196,41 @@
     var nextBtn = document.getElementById('mobile-next');
     if (prevBtn) prevBtn.style.visibility = index === 0 ? 'hidden' : 'visible';
     if (nextBtn) {
-      if (index === STEPS.length - 1) {
-        nextBtn.textContent = '\u{1F4C4} T\u00e9l\u00e9charger';
-      } else {
-        nextBtn.textContent = 'Suivant \u2192';
-      }
+      nextBtn.textContent = index === STEPS.length - 1 ? '\u{1F4C4} T\u00e9l\u00e9charger' : 'Suivant \u2192';
+    }
+
+    // Force CV re-render after step switch to pick up any hidden section data
+    if (typeof window.syncAndRender === 'function') {
+      setTimeout(function () { window.syncAndRender(); }, 10);
     }
 
     var firstActive = document.querySelector('.form-panel .form-section.mobile-active');
-    if (firstActive) {
-      firstActive.scrollTop = 0;
-    }
+    if (firstActive) firstActive.scrollTop = 0;
   }
 
-  /* ---- Activate mobile mode ---- */
+  /* ---- Activate ---- */
   function activateMobile() {
     if (isMobile) return;
     isMobile = true;
 
     var stepBar = document.getElementById('mobile-step-bar');
     var stepNav = document.getElementById('mobile-step-nav');
-    var toggle = document.getElementById('mobile-cv-toggle');
-    var sep = document.getElementById('mobile-cv-separator');
-
     if (stepBar) stepBar.style.display = 'flex';
     if (stepNav) stepNav.style.display = 'flex';
-    if (toggle) toggle.style.display = 'flex';
-    if (sep) sep.style.display = 'block';
-
-    // Ensure collapsed by default
-    var previewPanel = document.querySelector('.preview-panel');
-    if (previewPanel && !cvExpanded) {
-      previewPanel.classList.add('cv-collapsed');
-    }
 
     goToStep(currentStep);
     syncDesignControls();
-    updateMiniPreview();
   }
 
-  /* ---- Deactivate mobile mode ---- */
+  /* ---- Deactivate ---- */
   function deactivateMobile() {
     if (!isMobile) return;
     isMobile = false;
 
     var stepBar = document.getElementById('mobile-step-bar');
     var stepNav = document.getElementById('mobile-step-nav');
-    var toggle = document.getElementById('mobile-cv-toggle');
-    var sep = document.getElementById('mobile-cv-separator');
-    var previewPanel = document.querySelector('.preview-panel');
-
     if (stepBar) stepBar.style.display = 'none';
     if (stepNav) stepNav.style.display = 'none';
-    if (toggle) toggle.style.display = 'none';
-    if (sep) sep.style.display = 'none';
-
-    // Restore normal preview
-    if (previewPanel) {
-      previewPanel.classList.remove('cv-collapsed');
-    }
 
     document.querySelectorAll('.form-panel > .form-section').forEach(function (s) {
       s.classList.remove('mobile-active');
@@ -334,7 +238,7 @@
     });
   }
 
-  /* ---- Sync design controls with desktop state ---- */
+  /* ---- Sync design controls ---- */
   function syncDesignControls() {
     var activeTheme = document.querySelector('.theme-btn.active');
     if (activeTheme) {
@@ -343,7 +247,6 @@
         b.classList.toggle('active', b.dataset.theme === t);
       });
     }
-
     var activeColor = document.querySelector('.color-dot.active');
     if (activeColor) {
       var c = activeColor.dataset.color;
@@ -353,26 +256,14 @@
     }
   }
 
-  /* ---- Handle download on last step ---- */
+  /* ---- Download on last step ---- */
   function bindDownloadNav() {
     var nextBtn = document.getElementById('mobile-next');
     if (!nextBtn) return;
-
-    nextBtn.addEventListener('click', function (e) {
+    nextBtn.addEventListener('click', function () {
       if (currentStep === STEPS.length - 1) {
         var dlBtn = document.getElementById('btn-download');
         if (dlBtn) dlBtn.click();
-      }
-    });
-  }
-
-  /* ---- Listen form inputs to update mini preview ---- */
-  function bindFormListeners() {
- var fields = ['firstName', 'lastName', 'jobTitle'];
-    fields.forEach(function (id) {
-      var el = document.getElementById(id);
-      if (el) {
-        el.addEventListener('input', updateMiniPreview);
       }
     });
   }
@@ -382,7 +273,6 @@
     var observer = new MutationObserver(function () {
       if (isMobile) syncDesignControls();
     });
-
     var toolbar = document.querySelector('.preview-toolbar');
     if (toolbar) {
       observer.observe(toolbar, { attributes: true, subtree: true, attributeFilter: ['class', 'data-theme', 'data-color'] });
@@ -392,36 +282,28 @@
   /* ---- Init ---- */
   function init() {
     mapSections();
-    buildCvToggle();
     buildStepBar();
     buildDesignStep();
     buildStepNav();
+    bindAllInputs();
     bindDownloadNav();
-    bindFormListeners();
     observeDesktopChanges();
 
-    if (checkMobile()) {
-      activateMobile();
-    }
+    if (checkMobile()) activateMobile();
 
     var resizeTimer;
     window.addEventListener('resize', function () {
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(function () {
-        if (checkMobile()) {
-          activateMobile();
-        } else {
-          deactivateMobile();
-        }
+        if (checkMobile()) activateMobile();
+        else deactivateMobile();
       }, 150);
     });
 
     var savedStep = sessionStorage.getItem('designcv_mobile_step');
     if (savedStep !== null) {
       var n = parseInt(savedStep, 10);
-      if (n >= 0 && n < STEPS.length) {
-        currentStep = n;
-      }
+      if (n >= 0 && n < STEPS.length) currentStep = n;
     }
   }
 
