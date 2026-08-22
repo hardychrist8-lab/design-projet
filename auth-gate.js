@@ -133,14 +133,27 @@
   async function saveToCloud(name) {
     if (!supabase || !currentUser) return false;
     try {
-      // Récupérer l'état actuel du CV depuis app.js
-      // On passe par le DOM car le state n'est pas exposé globalement
       const cvState = buildCurrentState();
       if (!cvState) return false;
 
+      // Sécurité: limiter la taille des données (max 200KB)
+      const dataSize = JSON.stringify(cvState).length;
+      if (dataSize > 200 * 1024) {
+        console.warn('[DesignCV] Cloud save rejected: data too large (' + dataSize + ' bytes)');
+        if (typeof window.showToast === 'function') window.showToast('CV trop volumineux pour le cloud', 'error');
+        return false;
+      }
+
+      // Sécurité: limiter le nombre de CV par utilisateur (max 50)
+      const { count } = await supabase.from('saved_cvs').select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id);
+      if (count != null && count >= 50) {
+        if (typeof window.showToast === 'function') window.showToast('Limite de 50 CV atteinte. Supprimez-en un.', 'error');
+        return false;
+      }
+
       const { data: inserted, error } = await supabase.from('saved_cvs').insert({
         user_id: currentUser.id,
-        name: name || 'Mon CV',
+        name: (name || 'Mon CV').substring(0, 200),
         data: cvState,
       }).select('id').single();
       if (error) { console.error('[DesignCV] Cloud save error:', error); return false; }
