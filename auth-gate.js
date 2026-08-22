@@ -262,7 +262,7 @@
     clearSession();
     currentUser = null;
     onLogoutCleanup();
-    window.location.replace('index.html');
+    window.location.replace('index.html?logout=1');
   }
 
   // -----------------------------------------------------------------

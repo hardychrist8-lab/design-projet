@@ -44,26 +44,9 @@
   }
 
   // -----------------------------------------------------------------
-  // DOM refs
+  // DOM helper
   // -----------------------------------------------------------------
   var $ = function (s) { return document.querySelector(s); };
-  var form = $('#auth-form');
-  var nameField = $('#field-name');
-  var emailInput = $('#input-email');
-  var passwordInput = $('#input-password');
-  var passwordToggle = $('#password-toggle');
-  var meterBar = $('#password-meter-bar');
-  var passwordHint = $('#password-hint');
-  var submitBtn = $('#auth-submit');
-  var submitText = $('.auth-submit-text');
-  var submitLoader = $('.auth-submit-loader');
-  var errorEl = $('#auth-error');
-  var successEl = $('#auth-success');
-  var subtitleEl = $('#auth-subtitle');
-  var toggleText = $('#auth-toggle-text');
-  var toggleLink = $('#auth-toggle-link');
-  var googleBtn = $('#auth-google');
-  var forgotBtn = $('#auth-forgot');
 
   // -----------------------------------------------------------------
   // Auth handlers via fetch() REST API
@@ -132,12 +115,15 @@
 
   function handleGoogle() {
     var redirectTo = window.location.origin + '/app.html';
-    var url = AUTH_API + '/authorize?provider=google&redirect_to=' + encodeURIComponent(redirectTo);
+    var url = AUTH_API + '/authorize?provider=google'
+      + '&redirect_to=' + encodeURIComponent(redirectTo)
+      + '&prompt=select_account';
     window.location.href = url;
   }
 
   async function handleForgotPassword() {
-    var email = emailInput.value.trim();
+    var emailInput = $('#input-email');
+    var email = emailInput ? emailInput.value.trim() : '';
     if (!email) {
       showError('Entrez votre email pour reinitialiser le mot de passe.');
       return;
@@ -166,9 +152,18 @@
   }
 
   // -----------------------------------------------------------------
-  // Session restore
+  // Session restore — skip if user just logged out (?logout=1)
   // -----------------------------------------------------------------
   async function checkSession() {
+    // Si l'utilisateur vient de se deconnecter, ne PAS auto-redirect
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('logout') === '1') {
+      clearSession();
+      // Nettoyer l'URL sans recharger la page
+      window.history.replaceState({}, '', window.location.pathname);
+      return;
+    }
+
     var session = getStoredSession();
     if (!session || !session.access_token) return;
     var now = Math.floor(Date.now() / 1000);
@@ -215,6 +210,11 @@
   // Password meter
   // -----------------------------------------------------------------
   function updatePasswordMeter() {
+    var passwordInput = $('#input-password');
+    var meterBar = $('#password-meter-bar');
+    var passwordHint = $('#password-hint');
+    if (!passwordInput || !meterBar || !passwordHint) return;
+
     var len = passwordInput.value.length;
     if (len === 0) {
       meterBar.style.width = '0%';
@@ -245,25 +245,43 @@
   // -----------------------------------------------------------------
   function switchToSignup() {
     isSignup = true;
-    nameField.classList.add('auth-field--visible');
-    submitText.textContent = 'Creer mon compte';
-    subtitleEl.textContent = 'Creez votre compte gratuitement';
-    toggleText.textContent = 'Deja un compte ?';
-    toggleLink.textContent = 'Se connecter';
-    passwordInput.setAttribute('autocomplete', 'new-password');
-    forgotBtn.style.display = 'none';
+    var nameField = $('#field-name');
+    var submitText = $('.auth-submit-text');
+    var subtitleEl = $('#auth-subtitle');
+    var toggleText = $('#auth-toggle-text');
+    var toggleLink = $('#auth-toggle-link');
+    var passwordInput = $('#input-password');
+    var forgotBtn = $('#auth-forgot');
+    var errorEl = $('#auth-error');
+    var successEl = $('#auth-success');
+
+    if (nameField) nameField.classList.add('auth-field--visible');
+    if (submitText) submitText.textContent = 'Creer mon compte';
+    if (subtitleEl) subtitleEl.textContent = 'Creez votre compte gratuitement';
+    if (toggleText) toggleText.textContent = 'Deja un compte ?';
+    if (toggleLink) toggleLink.textContent = 'Se connecter';
+    if (passwordInput) passwordInput.setAttribute('autocomplete', 'new-password');
+    if (forgotBtn) forgotBtn.style.display = 'none';
     clearMessages();
   }
 
   function switchToLogin() {
     isSignup = false;
-    nameField.classList.remove('auth-field--visible');
-    submitText.textContent = 'Se connecter';
-    subtitleEl.textContent = 'Connectez-vous pour acceder a votre espace';
-    toggleText.textContent = 'Pas encore de compte ?';
-    toggleLink.textContent = 'Creer un compte';
-    passwordInput.setAttribute('autocomplete', 'current-password');
-    forgotBtn.style.display = '';
+    var nameField = $('#field-name');
+    var submitText = $('.auth-submit-text');
+    var subtitleEl = $('#auth-subtitle');
+    var toggleText = $('#auth-toggle-text');
+    var toggleLink = $('#auth-toggle-link');
+    var passwordInput = $('#input-password');
+    var forgotBtn = $('#auth-forgot');
+
+    if (nameField) nameField.classList.remove('auth-field--visible');
+    if (submitText) submitText.textContent = 'Se connecter';
+    if (subtitleEl) subtitleEl.textContent = 'Connectez-vous pour acceder a votre espace';
+    if (toggleText) toggleText.textContent = 'Pas encore de compte ?';
+    if (toggleLink) toggleLink.textContent = 'Creer un compte';
+    if (passwordInput) passwordInput.setAttribute('autocomplete', 'current-password');
+    if (forgotBtn) forgotBtn.style.display = '';
     clearMessages();
   }
 
@@ -271,26 +289,33 @@
   // UI helpers
   // -----------------------------------------------------------------
   function showError(msg) {
-    errorEl.textContent = msg;
-    errorEl.style.display = 'block';
-    successEl.style.display = 'none';
+    var errorEl = $('#auth-error');
+    var successEl = $('#auth-success');
+    if (errorEl) { errorEl.textContent = msg; errorEl.style.display = 'block'; }
+    if (successEl) successEl.style.display = 'none';
   }
 
   function showSuccess(msg) {
-    successEl.textContent = msg;
-    successEl.style.display = 'block';
-    errorEl.style.display = 'none';
+    var successEl = $('#auth-success');
+    var errorEl = $('#auth-error');
+    if (successEl) { successEl.textContent = msg; successEl.style.display = 'block'; }
+    if (errorEl) errorEl.style.display = 'none';
   }
 
   function clearMessages() {
-    errorEl.style.display = 'none';
-    successEl.style.display = 'none';
+    var errorEl = $('#auth-error');
+    var successEl = $('#auth-success');
+    if (errorEl) errorEl.style.display = 'none';
+    if (successEl) successEl.style.display = 'none';
   }
 
   function setLoading(loading) {
-    submitBtn.disabled = loading;
-    submitText.style.display = loading ? 'none' : '';
-    submitLoader.style.display = loading ? 'flex' : 'none';
+    var submitBtn = $('#auth-submit');
+    var submitText = $('.auth-submit-text');
+    var submitLoader = $('.auth-submit-loader');
+    if (submitBtn) submitBtn.disabled = loading;
+    if (submitText) submitText.style.display = loading ? 'none' : '';
+    if (submitLoader) submitLoader.style.display = loading ? 'flex' : 'none';
   }
 
   function friendlyError(msg) {
@@ -331,11 +356,38 @@
   }
 
   // -----------------------------------------------------------------
-  // Wire events
+  // Wire events — ALL DOM queries here, after DOM is ready
   // -----------------------------------------------------------------
   function wireEvents() {
+    var form = $('#auth-form');
+    var nameField = $('#field-name');
+    var emailInput = $('#input-email');
+    var passwordInput = $('#input-password');
+    var passwordToggle = $('#password-toggle');
+    var submitBtn = $('#auth-submit');
+    var submitText = $('.auth-submit-text');
+    var submitLoader = $('.auth-submit-loader');
+    var errorEl = $('#auth-error');
+    var successEl = $('#auth-success');
+    var subtitleEl = $('#auth-subtitle');
+    var toggleText = $('#auth-toggle-text');
+    var toggleLink = $('#auth-toggle-link');
+    var googleBtn = $('#auth-google');
+    var forgotBtn = $('#auth-forgot');
+
+    if (!form) {
+      console.error('[DesignCV] #auth-form not found!');
+      return;
+    }
+
+    // Prevent default form submission (critical fix)
     form.addEventListener('submit', function (e) {
       e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+
+      if (!emailInput || !passwordInput) return;
+
       var email = emailInput.value.trim();
       var password = passwordInput.value;
       if (!email || !password) {
@@ -343,28 +395,51 @@
         return;
       }
       if (isSignup) {
-        var name = $('#input-name').value.trim();
+        var nameInput = $('#input-name');
+        var name = nameInput ? nameInput.value.trim() : '';
         handleSignup(email, password, name);
       } else {
         handleLogin(email, password);
       }
-    });
+    }, false);
 
-    toggleLink.addEventListener('click', function () {
-      if (isSignup) switchToLogin(); else switchToSignup();
-    });
+    if (toggleLink) {
+      toggleLink.addEventListener('click', function (e) {
+        e.preventDefault();
+        if (isSignup) switchToLogin(); else switchToSignup();
+      });
+    }
 
-    googleBtn.addEventListener('click', handleGoogle);
-    forgotBtn.addEventListener('click', handleForgotPassword);
+    if (googleBtn) {
+      googleBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        handleGoogle();
+      });
+    }
 
-    passwordToggle.addEventListener('click', function () {
-      var isHidden = passwordInput.type === 'password';
-      passwordInput.type = isHidden ? 'text' : 'password';
-      passwordToggle.querySelector('.eye-open').style.display = isHidden ? 'none' : '';
-      passwordToggle.querySelector('.eye-closed').style.display = isHidden ? '' : 'none';
-    });
+    if (forgotBtn) {
+      forgotBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        handleForgotPassword();
+      });
+    }
 
-    passwordInput.addEventListener('input', updatePasswordMeter);
+    if (passwordToggle && passwordInput) {
+      passwordToggle.addEventListener('click', function (e) {
+        e.preventDefault();
+        var isHidden = passwordInput.type === 'password';
+        passwordInput.type = isHidden ? 'text' : 'password';
+        var eyeOpen = passwordToggle.querySelector('.eye-open');
+        var eyeClosed = passwordToggle.querySelector('.eye-closed');
+        if (eyeOpen) eyeOpen.style.display = isHidden ? 'none' : '';
+        if (eyeClosed) eyeClosed.style.display = isHidden ? '' : 'none';
+      });
+    }
+
+    if (passwordInput) {
+      passwordInput.addEventListener('input', updatePasswordMeter);
+    }
 
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') clearMessages();
