@@ -490,3 +490,18 @@
   }
   .mobile-step-tab .step-label { font-size: 7.5px; }
 }
+
+/* ============================================
+   DESKTOP : cacher les éléments mobile-only
+   Le thème/couleur sont dans la toolbar desktop.
+   ============================================ */
+@media (min-width: 701px) {
+  #mobile-step-bar,
+  #mobile-step-nav,
+  #step-design {
+    display: none !important;
+  }
+  #cv-preview-overlay {
+    display: none !important;
+  }
+}
