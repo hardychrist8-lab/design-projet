@@ -463,7 +463,7 @@
   function boot() {
     injectInfoIcons();
     injectNavButton();
-    console.log('[DesignCV] Module 8 — Aide contextuelle chargée.');
+    /* Module 8 — Aide contextuelle chargée. */
   }
 
   if (document.readyState === 'loading') {

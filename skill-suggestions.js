@@ -323,7 +323,7 @@
       renderAllChips();
       observeSkillsContainers();
 
-      console.log('[DesignCV] Module 14 — Skills intelligents actif.');
+      /* Module 14 — Skills intelligents actif. */
     });
   }
 

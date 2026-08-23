@@ -385,5 +385,5 @@
     boot();
   }
 
-  console.log('[DesignCV] Module 7 — Assistant de création (wizard) chargé.');
+  /* Module 7 — Assistant de création (wizard) chargé. */
 })();
