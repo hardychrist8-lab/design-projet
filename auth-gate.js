@@ -102,11 +102,11 @@
   // -----------------------------------------------------------------
   function initAuth() {
     if (!CONFIG.supabaseUrl || CONFIG.supabaseUrl === 'YOUR_SUPABASE_URL') {
-      console.log('[DesignCV] Phase 4 — Supabase non configuré, mode local uniquement.');
+      /* [DesignCV] Supabase non configuré, mode local uniquement. */
       return false;
     }
     isConfigured = true;
-    console.log('[DesignCV] Phase 4 — Supabase initialisé (fetch direct).');
+    /* [DesignCV] Supabase initialisé (fetch direct). */
     return true;
   }
 
@@ -120,7 +120,7 @@
       if (oauthHandled) {
         // Tokens just saved synchronously, user info loading in background
         // The background fetch will call onLoginSuccess() when done
-        console.log('[DesignCV] OAuth tokens saved, waiting for user info...');
+        /* OAuth tokens saved */
         return;
       }
 
@@ -128,20 +128,20 @@
         var s = getSession();
         currentUser = s.user;
         onLoginSuccess();
-        console.log('[DesignCV] Session restaurée pour', currentUser.email);
+        /* Session restaurée */
         return;
       }
 
       // Tenter le refresh
       if (await refreshAccessToken()) {
         onLoginSuccess();
-        console.log('[DesignCV] Session rafraîchie pour', currentUser.email);
+        /* Session rafraîchie */
         return;
       }
 
       // Pas de session valide
       if (isConfigured) {
-        console.log('[DesignCV] Non connecté, redirection vers la landing.');
+        /* Non connecté, redirection vers la landing. */
         const cvParam = new URLSearchParams(window.location.search).get('cv');
         const redirectUrl = cvParam ? 'index.html?cv=' + encodeURIComponent(cvParam) : 'index.html';
         window.location.replace(redirectUrl);
@@ -622,7 +622,7 @@
       if (navActions) navActions.insertBefore(menu, navActions.firstChild);
     }
     const email = currentUser.email || '';
-    const initial = email.charAt(0).toUpperCase();
+    const initial = escapeHtml(email.charAt(0).toUpperCase());
     const name = currentUser.user_metadata?.display_name || email.split('@')[0] || 'Compte';
     menu.innerHTML = `
       <button class="user-menu-btn" id="user-menu-btn" aria-label="Menu utilisateur" aria-expanded="false">
@@ -829,5 +829,5 @@
     getUser: () => currentUser,
   };
 
-  console.log('[DesignCV] Phase 4 — Auth gate chargé.', isConfigured ? '(Supabase fetch direct)' : '(mode local)');
+  /* Auth gate chargé. */
 })();

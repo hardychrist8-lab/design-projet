@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const tExp = modern ? 'Expériences' : 'Expériences Professionnelles';
         if (exps.length) { h += `<section class="cv-section"><div class="cv-section-title">${tExp}</div>`; exps.forEach(e => { const right = e.current ? '<span class="current-badge">En cours</span>' : `<span class="cv-entry-date">${esc(e.start)} ${e.end?'→ '+esc(e.end):''}</span>`; h += `<div class="cv-entry"><div class="cv-entry-header"><span class="cv-entry-title">${esc(e.main||'')}</span>${right}</div><div class="cv-entry-sub">${esc(e.sub||'')}</div>${e.desc?formatDesc(e.desc):''}</div>`; }); h += `</section>`; }
         if (edus.length) { h += `<section class="cv-section"><div class="cv-section-title">Formation</div>`; edus.forEach(e => { const right = e.current ? '<span class="current-badge">En cours</span>' : `<span class="cv-entry-date">${esc(e.start)} ${e.end?'→ '+esc(e.end):''}</span>`; h += `<div class="cv-entry"><div class="cv-entry-header"><span class="cv-entry-title">${esc(e.main||'')}</span>${right}</div><div class="cv-entry-sub">${esc(e.sub||'')}</div>${e.desc?formatDesc(e.desc):''}</div>`; }); h += `</section>`; }
-        if (state.projects.length) { h += `<section class="cv-section"><div class="cv-section-title">Projets Réalisés</div>`; state.projects.forEach(p => h += `<div class="cv-entry"><div class="cv-entry-title">${esc(p.main)}</div>${p.link?`<a href="${esc(p.link)}" class="cv-link" target="_blank" rel="noopener noreferrer">${esc(p.link)}</a>`:''}${p.desc?formatDesc(p.desc):''}</div>`); h += `</section>`; }
+        if (state.projects.length) { h += `<section class="cv-section"><div class="cv-section-title">Projets Réalisés</div>`; state.projects.forEach(p => { const safeLink = sanitizeUrl(p.link); h += `<div class="cv-entry"><div class="cv-entry-title">${esc(p.main)}</div>${safeLink?`<a href="${safeLink}" class="cv-link" target="_blank" rel="noopener noreferrer">${esc(p.link)}</a>`:''}${p.desc?formatDesc(p.desc):''}</div>`; }); h += `</section>`; }
         if (!modern) {
             if (state.skills.technical.length) h += `<section class="cv-section"><div class="cv-section-title">Compétences Techniques</div><div class="cv-skills">${state.skills.technical.map(s=>`<span class="cv-skill">${esc(s)}</span>`).join('')}</div></section>`;
             if (state.skills.other.length) h += `<section class="cv-section"><div class="cv-section-title">Autres Compétences</div><div class="cv-skills">${state.skills.other.map(s=>`<span class="cv-skill">${esc(s)}</span>`).join('')}</div></section>`;
@@ -223,6 +223,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // UTILS
     function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = String(s); return d.innerHTML; }
+    function sanitizeUrl(url) {
+        if (!url || typeof url !== 'string') return '';
+        const trimmed = url.trim();
+        if (!trimmed) return '';
+        // Autoriser uniquement http: et https:
+        if (!/^https?:\/\//i.test(trimmed)) return '';
+        return esc(trimmed);
+    }
     function showToast(msg, type='info') { dom.toast.textContent=msg; dom.toast.className=`toast ${type} show`; setTimeout(()=>dom.toast.classList.remove('show'),3000); }
     function closeModal() { dom.optModal.classList.remove('active'); }
 
