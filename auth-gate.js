@@ -308,21 +308,22 @@
 
       var insertR = await fetch(REST_API + '/saved_cvs', {
         method: 'POST',
-        headers: dbHeaders(),
+        headers: Object.assign({}, dbHeaders(), { 'Prefer': 'return=representation' }),
         body: JSON.stringify({
           user_id: currentUser.id,
           name: (name || 'Mon CV').substring(0, 200),
           data: cvState,
         })
       });
-      var insertData = await insertR.json();
       if (!insertR.ok) {
-        console.error('[DesignCV] Cloud save error:', insertData);
+        var errBody = await insertR.text().catch(() => '');
+        console.error('[DesignCV] Cloud save error:', insertR.status, errBody);
         return false;
       }
+      var insertData = await insertR.json().catch(() => ({}));
       if (typeof window.showToast === 'function') window.showToast('CV sauvegardé dans le cloud !', 'success');
       refreshCloudList();
-      sendCvSavedEmail(name || 'Mon CV', insertData.id);
+      if (insertData[0]) sendCvSavedEmail(name || 'Mon CV', insertData[0].id);
       return true;
     } catch (e) { console.error('[DesignCV] Cloud save error:', e); return false; }
   }
