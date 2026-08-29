@@ -31,7 +31,7 @@ const MAX_HTML_SIZE = 500 * 1024;
 module.exports = async (req, res) => {
   // CORS restreint
   const origin = req.headers.origin || '';
-  const allowedOrigins = ['https://design-cv.com', 'https://design-projet.vercel.app'];
+  const allowedOrigins = ['https://design-cv.com', 'https://'];
   if (allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
   }
@@ -73,7 +73,7 @@ module.exports = async (req, res) => {
       .substring(0, 100) || 'cv.pdf';
 
     const executablePath = await chromium.executablePath(
-      'https://design-projet.vercel.app/api/generate-pdf'
+      'https:///api/generate-pdf'
     );
 
     browser = await puppeteer.launch({

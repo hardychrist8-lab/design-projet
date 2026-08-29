@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
         dom.inputs.jobTitle.value = state.personal.jobTitle || ''; dom.inputs.email.value = state.personal.email || '';
         dom.inputs.phone.value = state.personal.phone || ''; dom.inputs.location.value = state.personal.location || '';
         dom.inputs.profile.value = state.profile || '';
-        if (state.personal.photo) dom.photoPreview.innerHTML = `<img src="${state.personal.photo}">`;
+        if (state.personal.photo) dom.photoPreview.innerHTML = `<img src="${sanitizeDataUrl(state.personal.photo)}">`;
         dom.lists.exp.innerHTML = ''; dom.lists.edu.innerHTML = ''; dom.lists.proj.innerHTML = ''; dom.lists.lang.innerHTML = '';
         state.experiences.forEach(() => addDynamicEntry('exp', false)); state.education.forEach(() => addDynamicEntry('edu', false));
         state.projects.forEach(() => addDynamicEntry('proj', false)); state.languages.forEach(() => addDynamicEntry('lang', false));
@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const styles = { balanced: { padding: '40px 48px' }, compact: { padding: '24px 32px' }, spacious: { padding: '56px 64px' } };
         dom.preview.style.padding = styles[state.variant].padding; dom.preview.style.setProperty('--cv-color', state.color);
         const p = state.personal, fullName = `${p.firstName} ${p.lastName}`.trim() || 'Votre Nom';
-        const photoHTML = p.photo ? `<img src="${p.photo}" class="cv-photo" alt="Photo">` : '';
+        const photoHTML = p.photo ? `<img src="${sanitizeDataUrl(p.photo)}" class="cv-photo" alt="Photo">` : '';
         const contactHTML = `<div class="cv-contact">${p.email?`<span>✉ ${esc(p.email)}</span>`:''}${p.phone?`<span>📞 ${esc(p.phone)}</span>`:''}${p.location?`<span>📍 ${esc(p.location)}</span>`:''}</div>`;
         const exps = sortItems(state.experiences), edus = sortItems(state.education);
         let html = '';
@@ -222,6 +222,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // UTILS
+    function sanitizeDataUrl(url) {
+        if (!url || typeof url !== 'string') return '';
+        if (!url.startsWith('data:image/')) return '';
+        return url;
+    }
     function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = String(s); return d.innerHTML; }
     function sanitizeUrl(url) {
         if (!url || typeof url !== 'string') return '';

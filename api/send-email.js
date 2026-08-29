@@ -40,7 +40,7 @@ const ALLOWED_EMAIL_DOMAINS = null; // null = tous les domaines autorisés (pour
 module.exports = async function handler(req, res) {
   // CORS restreint au domaine design-cv.com uniquement
   const origin = req.headers.origin || '';
-  const allowedOrigins = ['https://design-cv.com', 'https://design-projet.vercel.app'];
+  const allowedOrigins = ['https://design-cv.com'];
   if (allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
   }
@@ -88,13 +88,11 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: 'CV name too long' });
     }
 
-    // Vérifier le token Supabase si disponible (authentification optionnelle)
+    // Les types 'cv-saved' et 'email-verified' nécessitent un token auth valide
+    const AUTH_REQUIRED_TYPES = ['cv-saved', 'email-verified'];
     const authToken = req.headers.authorization?.replace('Bearer ', '');
-    // Note: on n'oblige pas l'auth pour le moment car les emails de bienvenue
-    // sont envoyés avant que l'utilisateur soit connecté.
-    // Mais on loggue les requêtes sans token pour monitoring.
-    if (!authToken) {
-      console.warn(`[DesignCV] Email API called without auth token: type=${type}, ip=${clientIp}`);
+    if (AUTH_REQUIRED_TYPES.includes(type) && !authToken) {
+      return res.status(401).json({ error: 'Authentication required for this email type' });
     }
 
     let subject = '', html = '';
