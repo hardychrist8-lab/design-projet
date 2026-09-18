@@ -115,12 +115,11 @@
 
   function handleGoogle() {
     var redirectTo = window.location.origin + '/app.html';
-    // Generate and store a random state parameter for CSRF protection
-    var state = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-    sessionStorage.setItem('oauth_state', state);
+    // Note: Supabase Auth gère déjà son propre state CSRF côté serveur.
+    // Ne pas ajouter de state maison ici : Supabase le remplace par le sien
+    // (UUID) au retour, ce qui cassait tout check local.
     var url = AUTH_API + '/authorize?provider=google'
       + '&redirect_to=' + encodeURIComponent(redirectTo)
-      + '&state=' + encodeURIComponent(state)
       + '&prompt=select_account';
     window.location.href = url;
   }
@@ -166,14 +165,11 @@
     try {
       var params = new URLSearchParams(hash.substring(1));
 
-      // Validate state parameter for CSRF protection
-      var returnedState = params.get('state');
-      var savedState = sessionStorage.getItem('oauth_state');
-      sessionStorage.removeItem('oauth_state');
-      if (savedState && returnedState !== savedState) {
-        showError('Erreur de securite (CSRF). Veuillez reessayer.');
-        return false;
-      }
+      // Note: la protection CSRF est gérée par Supabase via son propre state
+      // (vérifié côté serveur). On ne fait pas de check local ici.
+      // (Ancien check supprimé — il comparait notre state maison au state
+      // UUID de Supabase qui l'écrasait au retour, déclenchant l'erreur
+      // "Erreur de securite (CSRF)" à chaque retour OAuth Google.)
 
       var accessToken = params.get('access_token');
       var refreshToken = params.get('refresh_token');

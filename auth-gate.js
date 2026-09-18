@@ -160,15 +160,11 @@
 
     var params = new URLSearchParams(hash.substring(1));
 
-    // Validate state parameter for CSRF protection
-    var returnedState = params.get('state');
-    var savedState = sessionStorage.getItem('oauth_state');
-    sessionStorage.removeItem('oauth_state');
-    if (savedState && returnedState !== savedState) {
-      console.error('[DesignCV] OAuth state mismatch — possible CSRF attack');
-      clearSession();
-      return false;
-    }
+    // Note: la protection CSRF est gérée par Supabase via son propre state
+    // (vérifié côté serveur). On ne fait pas de check local ici.
+    // (Ancien check supprimé — il comparait notre state maison au state
+    // UUID de Supabase qui l'écrasait au retour, déclenchant l'erreur
+    // "OAuth state mismatch" à chaque retour OAuth Google.)
 
     var accessToken = params.get('access_token');
     var refreshToken = params.get('refresh_token');
