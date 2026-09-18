@@ -1,0 +1,4 @@
+supabase-schema.sql
+*.sql
+*.md
+docs/

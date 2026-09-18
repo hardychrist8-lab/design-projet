@@ -47,14 +47,6 @@
       ]
     },
     {
-      "source": "/supabase-schema.sql",
-      "headers": [
-        { "key": "X-Robots-Tag", "value": "noindex, nofollow" },
-        { "key": "Cache-Control", "value": "no-store" }
-      ],
-      "status": 404
-    },
-    {
       "source": "/(.*)",
       "headers": [
         { "key": "X-Content-Type-Options", "value": "nosniff" },
