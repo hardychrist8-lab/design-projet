@@ -31,7 +31,7 @@ const MAX_HTML_SIZE = 500 * 1024;
 module.exports = async (req, res) => {
   // CORS restreint
   const origin = req.headers.origin || '';
-  const allowedOrigins = ['https://design-cv.com', 'https://'];
+  const allowedOrigins = ['https://design-cv.com'];
   if (allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
   }
