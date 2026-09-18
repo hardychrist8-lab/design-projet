@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderSkillsUI() { if(dom.skills.techCont)dom.skills.techCont.innerHTML=state.skills.technical.map((s,i)=>`<span class="skill-tag">${esc(s)} <span class="skill-remove" onclick="removeSkill('tech',${i})" style="cursor:pointer;margin-left:6px;font-weight:bold">✕</span></span>`).join(''); if(dom.skills.otherCont)dom.skills.otherCont.innerHTML=state.skills.other.map((s,i)=>`<span class="skill-tag">${esc(s)} <span class="skill-remove" onclick="removeSkill('other',${i})" style="cursor:pointer;margin-left:6px;font-weight:bold">✕</span></span>`).join(''); }
 
     // 📸 PHOTO
-    dom.photoInput.addEventListener('change', e => { const f=e.target.files[0]; if(!f||f.size>2*1024*1024)return; const r=new FileReader(); r.onload=ev=>{state.personal.photo=ev.target.result;dom.photoPreview.innerHTML=`<img src="${ev.target.result}" alt="Photo">`;renderCV();showToast('Photo ajoutée','success')}; r.readAsDataURL(f); });
+    dom.photoInput.addEventListener('change', e => { const f=e.target.files[0]; if(!f||f.size>2*1024*1024)return; const r=new FileReader(); r.onload=ev=>{const safeUrl=sanitizeDataUrl(ev.target.result);if(!safeUrl){showToast('Format image non supporté','error');return;}state.personal.photo=safeUrl;dom.photoPreview.innerHTML=`<img src="${safeUrl}" alt="Photo">`;renderCV();showToast('Photo ajoutée','success')}; r.readAsDataURL(f); });
 
     // 🎨 THÈMES & COULEURS
     function switchTheme(t){dom.preview.classList.add('fading');setTimeout(()=>{state.theme=t;syncAndRender();dom.preview.classList.remove('fading')},300);}

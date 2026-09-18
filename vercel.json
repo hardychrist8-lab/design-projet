@@ -1,6 +1,16 @@
 {
   "cleanUrls": false,
   "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        { "type": "host", "value": "design-projet.vercel.app" }
+      ],
+      "destination": "https://design-cv.com/$1",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/",
@@ -35,6 +45,7 @@
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
         { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=(), payment=()" },
         { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" },
+        { "key": "Cache-Control", "value": "no-store, no-cache, must-revalidate, proxy-revalidate" },
         { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://nuogpqbwumbvbdmwcyyr.supabase.co https://*.googleapis.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://nuogpqbwumbvbdmwcyyr.supabase.co" }
       ]
     },

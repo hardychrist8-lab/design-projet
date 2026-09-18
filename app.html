@@ -6,6 +6,15 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <!-- Domain redirect: always use design-cv.com -->
+    <script>
+      if (window.location.hostname !== 'design-cv.com' && window.location.hostname !== 'localhost') {
+        window.location.replace('https://design-cv.com' + window.location.pathname + window.location.search + window.location.hash);
+      }
+    </script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <meta name="robots" content="noindex, nofollow">
     <title>DesignCV — Éditeur de CV</title>
     
@@ -369,7 +378,7 @@
     <script src="mobile-tabs.js"></script>
 
     <!-- ✅ PHASE 4 — AUTH GATE (Modules 2, 3, 4) -->
-    <!-- ⚠️  CONFIG : remplacer YOUR_SUPABASE_URL et YOUR_SUPABASE_ANON_KEY dans auth-gate.js -->
+    <!-- ⚠️  Auth gate requires Supabase configuration in auth-gate.js -->
     <script src="auth-gate.js?v=4"></script>
 </body>
 </html>

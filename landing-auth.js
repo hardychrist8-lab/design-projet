@@ -115,8 +115,12 @@
 
   function handleGoogle() {
     var redirectTo = window.location.origin + '/app.html';
+    // Generate and store a random state parameter for CSRF protection
+    var state = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    sessionStorage.setItem('oauth_state', state);
     var url = AUTH_API + '/authorize?provider=google'
       + '&redirect_to=' + encodeURIComponent(redirectTo)
+      + '&state=' + encodeURIComponent(state)
       + '&prompt=select_account';
     window.location.href = url;
   }
@@ -143,7 +147,7 @@
         showError(friendlyError(data.msg || data.error_description || data.error || 'Erreur'));
         return;
       }
-      showSuccess('Un email de reinitialisation a ete envoye a ' + email + '.');
+      showSuccess('Un email de reinitialisation a ete envoye a votre adresse.');
     } catch (err) {
       showError('Erreur reseau. Verifiez votre connexion internet.');
     } finally {
@@ -152,9 +156,74 @@
   }
 
   // -----------------------------------------------------------------
+  // OAuth callback handler (for when Supabase redirects to landing page
+  // instead of app.html — common on mobile / misconfigured redirect URLs)
+  // -----------------------------------------------------------------
+  function handleOAuthCallback() {
+    var hash = window.location.hash;
+    if (!hash || hash.indexOf('access_token') === -1) return false;
+
+    try {
+      var params = new URLSearchParams(hash.substring(1));
+
+      // Validate state parameter for CSRF protection
+      var returnedState = params.get('state');
+      var savedState = sessionStorage.getItem('oauth_state');
+      sessionStorage.removeItem('oauth_state');
+      if (savedState && returnedState !== savedState) {
+        showError('Erreur de securite (CSRF). Veuillez reessayer.');
+        return false;
+      }
+
+      var accessToken = params.get('access_token');
+      var refreshToken = params.get('refresh_token');
+      var expiresIn = parseInt(params.get('expires_in') || '3600', 10);
+      var tokenType = params.get('token_type') || 'bearer';
+
+      if (!accessToken) return false;
+
+      // Fetch user info first so we have it before redirecting
+      fetch(AUTH_API + '/user', {
+        headers: { 'Authorization': 'Bearer ' + accessToken, 'apikey': SUPABASE_ANON_KEY }
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(user) {
+        saveSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+          expires_in: expiresIn,
+          token_type: tokenType,
+          user: user
+        });
+        // Clean the URL hash and redirect to app
+        window.location.replace('app.html');
+      })
+      .catch(function() {
+        // Even if user fetch fails, save tokens and redirect
+        saveSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+          expires_in: expiresIn,
+          token_type: tokenType,
+          user: null
+        });
+        window.location.replace('app.html');
+      });
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // -----------------------------------------------------------------
   // Session restore — skip if user just logged out (?logout=1)
   // -----------------------------------------------------------------
   async function checkSession() {
+    // Handle OAuth callback FIRST (if Supabase redirected here)
+    var oauthHandled = handleOAuthCallback();
+    if (oauthHandled) return; // redirecting to app.html
+
     // Si l'utilisateur vient de se deconnecter, ne PAS auto-redirect
     var params = new URLSearchParams(window.location.search);
     if (params.get('logout') === '1') {
@@ -329,7 +398,7 @@
     for (var key in map) {
       if (msg.indexOf(key) !== -1) return map[key];
     }
-    return msg;
+    return 'Une erreur est survenue. Veuillez reessayer.';
   }
 
   function redirectToApp() {

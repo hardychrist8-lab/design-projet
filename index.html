@@ -194,7 +194,15 @@
             crossorigin="anonymous"
             onerror="window.__gsapFailed=true"></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"
+            integrity="sha384-d+vyQ0dYcymoP8ndq2hW7FGC50nqGdXUEgoOUGxbbkAJwZqL7h+jKN0GGgn9hFDS"
+            crossorigin="anonymous"
             onerror="window.__gsapFailed=true"></script>
+    <!-- Domain redirect: always use design-cv.com -->
+    <script>
+      if (window.location.hostname !== 'design-cv.com' && window.location.hostname !== 'localhost') {
+        window.location.replace('https://design-cv.com' + window.location.pathname + window.location.search + window.location.hash);
+      }
+    </script>
     <script src="landing-auth.js?v=4"></script>
 
     <!-- CSS fallback animations if GSAP failed -->
@@ -215,7 +223,13 @@
     </style>
 
     <footer style="text-align:center;padding:1.5rem 1rem 1.25rem;">
-        <a href="/privacy.html" style="color:#52525b;font-size:0.75rem;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#a1a1aa'" onmouseout="this.style.color='#52525b'">Politique de confidentialité</a>
+        <a href="https://design-cv.com/privacy.html" style="color:#71717a;font-size:0.8rem;text-decoration:none;transition:color 0.2s;margin:0 0.5rem;" onmouseover="this.style.color='#a1a1aa'" onmouseout="this.style.color='#71717a'">Politique de confidentialité</a>
+        <span style="color:#333;font-size:0.8rem;">·</span>
+        <a href="https://design-cv.com/terms.html" style="color:#71717a;font-size:0.8rem;text-decoration:none;transition:color 0.2s;margin:0 0.5rem;" onmouseover="this.style.color='#a1a1aa'" onmouseout="this.style.color='#71717a'">Conditions d'utilisation</a>
+        <span style="color:#333;font-size:0.8rem;">·</span>
+        <a href="https://design-cv.com/about.html" style="color:#71717a;font-size:0.8rem;text-decoration:none;transition:color 0.2s;margin:0 0.5rem;" onmouseover="this.style.color='#a1a1aa'" onmouseout="this.style.color='#71717a'">À propos</a>
+        <span style="color:#333;font-size:0.8rem;">·</span>
+        <span style="color:#52525b;font-size:0.8rem;">Développé par <strong style="color:#71717a;">Christ Johan Liatche</strong></span>
     </footer>
 
     <section style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;" aria-hidden="true">

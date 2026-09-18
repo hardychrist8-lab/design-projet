@@ -159,6 +159,17 @@
     if (!hash || hash.indexOf('access_token') === -1) return false;
 
     var params = new URLSearchParams(hash.substring(1));
+
+    // Validate state parameter for CSRF protection
+    var returnedState = params.get('state');
+    var savedState = sessionStorage.getItem('oauth_state');
+    sessionStorage.removeItem('oauth_state');
+    if (savedState && returnedState !== savedState) {
+      console.error('[DesignCV] OAuth state mismatch — possible CSRF attack');
+      clearSession();
+      return false;
+    }
+
     var accessToken = params.get('access_token');
     var refreshToken = params.get('refresh_token');
     var expiresIn = parseInt(params.get('expires_in') || '3600', 10);
@@ -345,7 +356,7 @@
   async function deleteFromCloud(id) {
     if (!currentUser) return;
     try {
-      var r = await fetch(REST_API + '/saved_cvs?id=eq.' + id, {
+      var r = await fetch(REST_API + '/saved_cvs?id=eq.' + id + '&user_id=eq.' + currentUser.id, {
         method: 'DELETE',
         headers: dbHeaders()
       });
@@ -726,8 +737,8 @@
             <span class="cloud-item-date">${date}</span>
           </div>
           <div class="cloud-item-actions">
-            <button type="button" class="btn btn-ghost btn-sm cloud-load-btn" data-id="${cv.id}">Charger</button>
-            <button type="button" class="btn btn-ghost btn-sm cloud-del-btn" data-id="${cv.id}">\u2715</button>
+            <button type="button" class="btn btn-ghost btn-sm cloud-load-btn" data-id="${escapeHtml(String(cv.id))}">Charger</button>
+            <button type="button" class="btn btn-ghost btn-sm cloud-del-btn" data-id="${escapeHtml(String(cv.id))}">\u2715</button>
           </div>
         </div>`;
     }).join('');
@@ -800,7 +811,7 @@
     for (var key in map) {
       if (msg.indexOf(key) !== -1) return map[key];
     }
-    return msg;
+    return 'Une erreur est survenue. Veuillez réessayer.';
   }
 
   // -----------------------------------------------------------------
